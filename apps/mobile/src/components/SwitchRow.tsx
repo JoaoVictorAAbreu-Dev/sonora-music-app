@@ -8,7 +8,10 @@ import { Text } from './Text';
 const travel =
   layout.switchWidth - layout.switchKnob - 2 * ((layout.switchHeight - layout.switchKnob) / 2);
 
-/** "Interruptor" row from T03: label, state caption ("Ligado"/"Desligado"), 52×30 switch. */
+/**
+ * Row from T03 with the "Interruptor" component (Figma 03, Estado=Desligado/Ligado):
+ * label, state caption ("Ligado"/"Desligado") and a 52×30 switch.
+ */
 export function SwitchRow({
   label,
   value,
