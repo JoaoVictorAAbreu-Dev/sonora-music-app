@@ -37,6 +37,9 @@ export const duration = {
   skeleton: 1200,
 } as const;
 
+/** Opacity of disabled controls (Figma: Desabilitado = 40%). */
+export const opacity = { disabled: 0.4 } as const;
+
 /** Cubic-bezier control points [x1, y1, x2, y2]; `linear` is the identity curve. */
 export const easing = {
   entrance: [0.22, 1, 0.36, 1],
@@ -84,8 +87,39 @@ export const layout = {
   chipHeight: 36,
   /** Gap between a tab icon and its label ("Barra de abas" component). */
   iconLabelGap: 2,
+  /** Component heights from Figma "03 Componentes" (minimums; they grow with Dynamic Type). */
+  buttonHeight: 48,
+  socialButtonHeight: 52,
+  fieldHeight: 56,
+  switchWidth: 52,
+  switchHeight: 30,
+  switchKnob: 22,
+  /** Border widths: controls at rest 1.5, focus/error rings 2. */
+  borderControl: 1.5,
+  borderEmphasis: 2,
+  iconSize: 24,
+  brandIconSize: 20,
   focusRingWidth: 2,
   maxFontScale: 2,
+} as const;
+
+/**
+ * Motion patterns from Figma "07 Protótipo" / "09 Motion" built on the duration tokens.
+ * The shake (PB3a–c) moves the form −8 → +8 → 0 px, 60 ms per step.
+ */
+export const motionPattern = {
+  shake: { distance: spacing.sm, stepMs: 60 },
+  press: duration.instant,
+  focus: duration.micro,
+} as const;
+
+/**
+ * Sign-in button colors mandated by the providers' brand guidelines (Figma "Botão social").
+ * Not part of the Sonora palette; use only for the Google and Apple buttons.
+ */
+export const brand = {
+  google: { background: '#131314', pressed: '#1F1F21', border: '#8E918F', text: '#E3E3E3' },
+  apple: { background: '#000000', pressed: '#1A1A1A', border: '#FFFFFF', text: '#FFFFFF' },
 } as const;
 
 /** "Reduce Motion": replace movement with a short fade of this duration. */
@@ -93,6 +127,9 @@ export const reducedMotionFade = duration.instant;
 
 export const tokens = {
   color,
+  brand,
+  opacity,
+  motionPattern,
   spacing,
   radius,
   duration,
