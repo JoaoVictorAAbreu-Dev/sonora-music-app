@@ -1,0 +1,56 @@
+/**
+ * Very common passwords (lowercase) rejected at sign-up even when long enough.
+ * Short on purpose: a deny-list of the most frequent leaked passwords of 10+ characters.
+ */
+export const commonPasswords: ReadonlySet<string> = new Set([
+  '1234567890',
+  '12345678910',
+  '0123456789',
+  '0987654321',
+  '1111111111',
+  '1234512345',
+  '123456789a',
+  '123456789q',
+  'qwertyuiop',
+  'qwertyuiop1',
+  'qwerty1234',
+  'qwerty12345',
+  '1q2w3e4r5t',
+  '1qaz2wsx3edc',
+  'asdfghjkl1',
+  'zxcvbnm123',
+  'password12',
+  'password123',
+  'password1234',
+  'passw0rd123',
+  'iloveyou12',
+  'iloveyou123',
+  'abcdefghij',
+  'abc1234567',
+  'aaaaaaaaaa',
+  'football123',
+  'baseball123',
+  'superman123',
+  'princess123',
+  'sunshine123',
+  'welcome123',
+  'letmein123',
+  'monkey12345',
+  'dragon12345',
+  'trustno1234',
+  'senha12345',
+  'senha123456',
+  'minhasenha',
+  'minhasenha123',
+  'mudar12345',
+  'brasil1234',
+  'flamengo123',
+  'corinthians',
+  'palmeiras123',
+  'sonora1234',
+  'sonora12345',
+]);
+
+export function isCommonPassword(password: string): boolean {
+  return commonPasswords.has(password.toLowerCase());
+}

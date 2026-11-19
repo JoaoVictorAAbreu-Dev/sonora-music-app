@@ -8,19 +8,19 @@ describe('error shape', () => {
   });
 
   it('accepts a valid error and rejects unknown codes', () => {
-    expect(isApiError({ error: { code: 'NOT_FOUND', message: 'x' } })).toBe(true);
+    expect(isApiError({ error: { code: 'INVALID_CREDENTIALS', message: 'x' } })).toBe(true);
     expect(isApiError({ error: { code: 'NOPE', message: 'x' } })).toBe(false);
     expect(isApiError({ message: 'x' })).toBe(false);
   });
 
-  it('converts zod issues', () => {
+  it('converts zod issues into details', () => {
     const r = z.object({ email: z.email() }).safeParse({ email: 'bad' });
     expect(r.success).toBe(false);
     if (!r.success) {
-      const issues = toFieldIssues(r.error);
-      expect(issues[0]?.path).toBe('email');
+      const details = toFieldIssues(r.error);
+      expect(details[0]?.path).toBe('email');
       expect(
-        apiErrorSchema.parse({ error: { code: 'VALIDATION_FAILED', message: 'm', issues } }),
+        apiErrorSchema.parse({ error: { code: 'VALIDATION_ERROR', message: 'm', details } }),
       ).toBeTruthy();
     }
   });
