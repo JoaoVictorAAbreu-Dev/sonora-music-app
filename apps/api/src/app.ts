@@ -37,7 +37,10 @@ export async function buildApp(config: Config, db: Db): Promise<FastifyInstance>
 
   await app.register(helmet, {
     // JSON API: no HTML is served, so lock everything down.
-    contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] } },
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] },
+    },
     crossOriginResourcePolicy: { policy: 'same-origin' },
   });
   await app.register(cors, {
