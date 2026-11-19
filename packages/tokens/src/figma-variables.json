@@ -1,0 +1,68 @@
+{
+  "$source": "Figma file WeOQXpus2WWdTOG0DfYB9s, local variables, read via Figma MCP on 2026-11-19. Update this file only from a fresh Figma export; the drift test compares the code tokens against it.",
+  "Color/Escuro": {
+    "color/bg/base": "#1B1D23",
+    "color/bg/raised": "#25272F",
+    "color/bg/overlay": "#363943",
+    "color/text/primary": "#FFFBEA",
+    "color/text/secondary": "#ABA89E",
+    "color/text/tertiary": "#9E9A93",
+    "color/text/highlight": "#EFE7BA",
+    "color/text/on-action": "#1B1D23",
+    "color/action/primary": "#F5891F",
+    "color/action/primary-pressed": "#D9730F",
+    "color/signal/live": "#63C8D1",
+    "color/icon/default": "#FFFBEA",
+    "color/icon/muted": "#ABA89E",
+    "color/icon/action": "#F5891F",
+    "color/border/control": "#8D8983",
+    "color/border/hairline": "#363943",
+    "color/focus/ring": "#FFFFFF",
+    "color/state/error": "#F0657A",
+    "color/state/success": "#34D399",
+    "color/state/warning": "#F0D576"
+  },
+  "Spacing": {
+    "spacing/xs": 4,
+    "spacing/sm": 8,
+    "spacing/md": 12,
+    "spacing/lg": 16,
+    "spacing/xl": 24,
+    "spacing/2xl": 32
+  },
+  "Radius": {
+    "radius/sm": 8,
+    "radius/md": 14,
+    "radius/lg": 22,
+    "radius/xl": 28,
+    "radius/full": 999
+  },
+  "Motion": {
+    "duration/instant": 100,
+    "duration/micro": 150,
+    "duration/standard": 240,
+    "duration/screen": 320,
+    "duration/complex": 440,
+    "duration/loop": 360,
+    "duration/skeleton": 1200,
+    "easing/entrance": "cubic-bezier(0.22, 1, 0.36, 1)",
+    "easing/standard": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "easing/exit": "cubic-bezier(0.4, 0, 1, 1)",
+    "easing/linear": "linear"
+  },
+  "TextStyles": {
+    "type/display": { "family": "Inter", "weight": "600", "size": 28, "lineHeight": 34 },
+    "type/title": { "family": "Inter", "weight": "600", "size": 22, "lineHeight": 28 },
+    "type/body": { "family": "Inter", "weight": "400", "size": 17, "lineHeight": 24 },
+    "type/body-strong": { "family": "Inter", "weight": "600", "size": 17, "lineHeight": 24 },
+    "type/caption": { "family": "Inter", "weight": "400", "size": 14, "lineHeight": 20 },
+    "type/label": { "family": "Inter", "weight": "500", "size": 12, "lineHeight": 16 }
+  },
+  "EffectStyles": {
+    "glass/regular": {
+      "backgroundBlur": 32,
+      "dropShadow": { "x": 0, "y": 8, "radius": 32, "color": "#000000", "opacity": 0.45 },
+      "innerShadow": { "x": 0, "y": 1, "radius": 0, "color": "#FFFAEB", "opacity": 0.1 }
+    }
+  }
+}
