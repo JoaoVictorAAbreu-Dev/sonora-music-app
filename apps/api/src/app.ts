@@ -1,11 +1,14 @@
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { Config } from './config';
 import type { Db } from './db/client';
+import { AttemptLimiter } from './auth/attempt-limiter';
+import { createAccessTokens } from './auth/tokens';
 import { registerErrorHandlers } from './errors';
+import { authRoutes } from './routes/auth';
 import { healthRoutes } from './routes/health';
+import { meRoutes } from './routes/me';
 
 /** Paths pino must never print. Bodies are not logged at all; this is defense in depth. */
 export const redactPaths = [
@@ -19,13 +22,25 @@ export const redactPaths = [
   '*.refreshToken',
   '*.idToken',
   '*.identityToken',
+  'body.password',
+  'body.refreshToken',
 ];
 
-export async function buildApp(config: Config, db: Db): Promise<FastifyInstance> {
+export interface BuildOptions {
+  /** Test hook: where pino writes (defaults to stdout). */
+  logStream?: { write(msg: string): void };
+}
+
+export async function buildApp(
+  config: Config,
+  db: Db,
+  options: BuildOptions = {},
+): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
       redact: { paths: redactPaths, censor: '[redacted]' },
+      ...(options.logStream ? { stream: options.logStream } : {}),
     },
     // Trust exactly N proxy hops (Caddy) so req.ip is the client, not the proxy.
     trustProxy: (_address: string, hop: number) => hop < config.TRUST_PROXY_HOPS,
@@ -47,10 +62,24 @@ export async function buildApp(config: Config, db: Db): Promise<FastifyInstance>
     origin: (origin, cb) => cb(null, origin === undefined || config.CORS_ORIGINS.includes(origin)),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
-  // Off by default; auth routes opt in with `config.rateLimit`.
-  await app.register(rateLimit, { global: false });
 
   healthRoutes(app, { db, version: config.APP_VERSION });
+
+  const accessTokens = createAccessTokens(config.JWT_SECRET, config.ACCESS_TOKEN_TTL);
+  const sessionDeps = { db, accessTokens, refreshTtlSeconds: config.REFRESH_TOKEN_TTL };
+  await app.register(
+    (v1, _opts, done) => {
+      void v1.register(authRoutes, {
+        prefix: '/auth',
+        ...sessionDeps,
+        ipLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_IP, 60_000),
+        emailLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_EMAIL, 15 * 60_000),
+      });
+      void v1.register(meRoutes, { db, accessTokens });
+      done();
+    },
+    { prefix: '/v1' },
+  );
 
   return app;
 }
