@@ -13,7 +13,7 @@ export interface TabItem {
 
 /** The three primary tabs, in Figma order ("Barra de abas (vidro)"). */
 export const tabItems: TabItem[] = [
-  { name: 'index', label: 'Início', icon: 'home' },
+  { name: 'home', label: 'Início', icon: 'home' },
   { name: 'search', label: 'Buscar', icon: 'search' },
   { name: 'library', label: 'Biblioteca', icon: 'library' },
 ];
