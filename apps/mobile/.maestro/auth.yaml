@@ -1,0 +1,52 @@
+# Sign up → Home → relaunch (still signed in) → sign out.
+# Needs a development build installed on a device/emulator and the API reachable at
+# EXPO_PUBLIC_API_URL. Run: maestro test -e APP_ID=<bundle id> apps/mobile/.maestro/auth.yaml
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- evalScript: ${output.email = 'maestro-' + Date.now() + '@example.com'}
+- assertVisible:
+    id: screen-welcome
+- tapOn:
+    id: social-email
+- tapOn:
+    id: go-sign-up
+- tapOn:
+    id: sign-up-email
+- inputText: ${output.email}
+- tapOn:
+    id: sign-up-password
+- inputText: violet-harbor-lantern-42
+- tapOn:
+    id: sign-up-confirm
+- inputText: violet-harbor-lantern-42
+- hideKeyboard
+- tapOn:
+    id: sign-up-terms
+- tapOn:
+    id: sign-up-submit
+- extendedWaitUntil:
+    visible:
+      id: screen-home
+    timeout: 15000
+
+# Relaunch without clearing state: the refresh token in secure storage restores the session.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: screen-home
+    timeout: 15000
+
+- tapOn:
+    id: tab-library
+- assertVisible:
+    id: signed-in-as
+- tapOn:
+    id: sign-out
+- extendedWaitUntil:
+    visible:
+      id: screen-welcome
+    timeout: 10000

@@ -1,6 +1,6 @@
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import TabsLayout from '../src/app/(tabs)/_layout';
-import HomeScreen from '../src/app/(tabs)/index';
+import HomeScreen from '../src/app/(tabs)/home';
 import SearchScreen from '../src/app/(tabs)/search';
 import LibraryScreen from '../src/app/(tabs)/library';
 
@@ -8,11 +8,11 @@ function renderTabs() {
   return renderRouter(
     {
       '(tabs)/_layout': TabsLayout,
-      '(tabs)/index': HomeScreen,
+      '(tabs)/home': HomeScreen,
       '(tabs)/search': SearchScreen,
       '(tabs)/library': LibraryScreen,
     },
-    { initialUrl: '/' },
+    { initialUrl: '/home' },
   );
 }
 
@@ -21,8 +21,8 @@ describe('tab shell', () => {
     await renderTabs();
     const tabs = await screen.findAllByRole('tab');
     expect(tabs.map((t) => t.props.accessibilityLabel)).toEqual(['Início', 'Buscar', 'Biblioteca']);
-    expect(screen.getByTestId('tab-index').props.accessibilityState).toEqual({ selected: true });
-    expect(screen.getByTestId('screen-index')).toBeTruthy();
+    expect(screen.getByTestId('tab-home').props.accessibilityState).toEqual({ selected: true });
+    expect(screen.getByTestId('screen-home')).toBeTruthy();
   });
 
   it('switches tabs and updates the selected state', async () => {

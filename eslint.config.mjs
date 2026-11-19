@@ -45,6 +45,10 @@ export default tseslint.config(
   },
   {
     files: ['**/test/**', '**/*.test.ts', '**/*.test.tsx'],
-    rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      // Jest module factories must use require().
+      '@typescript-eslint/no-require-imports': 'off',
+    },
   },
 );
