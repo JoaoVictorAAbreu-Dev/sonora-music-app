@@ -18,3 +18,4 @@ apps/mobile/android/
 *.dump
 *.sql.gz
 .DS_Store
+infra/backups/

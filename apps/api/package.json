@@ -16,7 +16,6 @@
     "@fastify/cors": "^11.4.3",
     "@fastify/helmet": "^13.2.0",
     "@fastify/rate-limit": "^11.2.2",
-    "@sonora/shared": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "fastify": "^5.12.8",
     "pg": "^8.23.1",
@@ -24,6 +23,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@sonora/shared": "workspace:*",
     "@testcontainers/postgresql": "^12.2.2",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",

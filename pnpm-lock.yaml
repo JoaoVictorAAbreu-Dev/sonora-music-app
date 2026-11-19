@@ -44,9 +44,6 @@ importers:
       '@fastify/rate-limit':
         specifier: ^11.2.2
         version: 11.2.2
-      '@sonora/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@types/pg@8.23.1)(pg@8.23.1)
@@ -63,6 +60,9 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
     devDependencies:
+      '@sonora/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@testcontainers/postgresql':
         specifier: ^12.2.2
         version: 12.2.2(bare-buffer@3.7.3)
