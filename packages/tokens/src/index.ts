@@ -82,6 +82,8 @@ export const layout = {
   tabBarHeight: 64,
   listRowHeight: 64,
   chipHeight: 36,
+  /** Gap between a tab icon and its label ("Barra de abas" component). */
+  iconLabelGap: 2,
   focusRingWidth: 2,
   maxFontScale: 2,
 } as const;
