@@ -1,6 +1,8 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   bigserial,
+  check,
   boolean,
   index,
   integer,
@@ -25,10 +27,15 @@ export const users = pgTable(
     /** argon2id hash; null for accounts created only through Google/Apple. */
     passwordHash: text('password_hash'),
     displayName: text('display_name'),
+    termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('users_email_lower_uq').on(sql`lower(${t.email})`)],
+  (t) => [
+    // Stored lowercase (enforced), so a plain unique index is case-insensitive.
+    uniqueIndex('users_email_uq').on(t.email),
+    check('users_email_lowercase_ck', sql`${t.email} = lower(${t.email})`),
+  ],
 );
 
 export const authProvider = pgEnum('auth_provider', ['google', 'apple']);
@@ -60,18 +67,20 @@ export const refreshTokens = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     /** SHA-256 of the opaque token; the raw token is never stored. */
     tokenHash: text('token_hash').notNull(),
-    /** All tokens produced by rotating one login share a family; reuse revokes the family. */
-    family: uuid('family').notNull(),
+    /** All tokens produced by rotating one sign-in share a family; reuse revokes the family. */
+    familyId: uuid('family_id').notNull(),
+    /** Set when the token was rotated; presenting a token with a successor is reuse. */
+    replacedBy: uuid('replaced_by').references((): AnyPgColumn => refreshTokens.id, {
+      onDelete: 'set null',
+    }),
     device: text('device'),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
-    /** Set when the token was rotated (consumed); presenting it again is reuse. */
-    usedAt: timestamp('used_at', { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
     uniqueIndex('refresh_tokens_hash_uq').on(t.tokenHash),
-    index('refresh_tokens_family_idx').on(t.family),
+    index('refresh_tokens_family_idx').on(t.familyId),
     index('refresh_tokens_user_idx').on(t.userId),
     index('refresh_tokens_expires_idx').on(t.expiresAt),
   ],

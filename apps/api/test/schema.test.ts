@@ -31,7 +31,7 @@ describe('first migration', () => {
     );
     const names = r.rows.map((x) => x.indexname);
     for (const idx of [
-      'users_email_lower_uq',
+      'users_email_uq',
       'auth_identities_provider_user_uq',
       'auth_identities_user_idx',
       'refresh_tokens_hash_uq',
@@ -46,11 +46,14 @@ describe('first migration', () => {
       expect(names).toContain(idx);
   });
 
-  it('enforces case-insensitive unique emails', async () => {
-    await ctx.db.execute(sql`insert into users (email) values ('Ana@Example.com')`);
+  it('stores emails lowercase and unique', async () => {
+    await expect(
+      ctx.db.execute(sql`insert into users (email) values ('Ana@Example.com')`),
+    ).rejects.toMatchObject({ cause: { constraint: 'users_email_lowercase_ck' } });
+    await ctx.db.execute(sql`insert into users (email) values ('ana@example.com')`);
     await expect(
       ctx.db.execute(sql`insert into users (email) values ('ana@example.com')`),
-    ).rejects.toThrow();
+    ).rejects.toMatchObject({ cause: { constraint: 'users_email_uq' } });
   });
 
   it('cascades user deletion', async () => {

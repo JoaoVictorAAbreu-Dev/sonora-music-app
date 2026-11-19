@@ -8,6 +8,20 @@
       "when": 1795115955163,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795118582455,
+      "tag": "0001_drop_legacy_token_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795118592840,
+      "tag": "0002_auth_token_rotation",
+      "breakpoints": true
     }
   ]
 }
