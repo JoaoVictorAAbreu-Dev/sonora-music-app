@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { elevation, layout, spacing } from '@/theme';
 import { GlassSurface } from './GlassSurface';
+import { MiniPlayer } from './player/MiniPlayer';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
@@ -25,6 +26,7 @@ export function TabBar({ state, navigateToTab, emitter, insets }: BottomTabBarPr
       pointerEvents="box-none"
       style={[styles.wrapper, { bottom: Math.max(insets.bottom, spacing.lg) }]}
     >
+      <MiniPlayer />
       <GlassSurface testID="tab-bar" style={styles.bar}>
         <View accessibilityRole="tablist" style={styles.row}>
           {state.routes.map((route, i) => {

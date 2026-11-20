@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { ScrollView, StyleSheet, type RefreshControlProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePlayer } from '@/features/player';
 import { color, layout, spacing } from '@/theme';
 
 /**
@@ -19,6 +20,8 @@ export function Screen({
   refreshControl?: ReactElement<RefreshControlProps>;
 }) {
   const insets = useSafeAreaInsets();
+  // Leave room for the mini player when something is loaded.
+  const mini = usePlayer((s) => s.queue.length > 0) ? layout.miniPlayerHeight + spacing.sm : 0;
   return (
     <ScrollView
       testID={testID}
@@ -29,7 +32,7 @@ export function Screen({
       contentContainerStyle={{
         paddingTop: insets.top + spacing.sm,
         paddingHorizontal: padded ? layout.screenMargin : 0,
-        paddingBottom: insets.bottom + layout.tabBarHeight + spacing['2xl'],
+        paddingBottom: insets.bottom + layout.tabBarHeight + mini + spacing['2xl'],
         gap: spacing.xl,
       }}
     >

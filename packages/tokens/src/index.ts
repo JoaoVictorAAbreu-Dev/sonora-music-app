@@ -116,6 +116,14 @@ export const layout = {
   /** Skeleton bar heights (title / subtitle) from "Esqueleto". */
   skeletonTitleHeight: 16,
   skeletonCaptionHeight: 12,
+  /** Player (T11/T12). */
+  miniPlayerHeight: 64,
+  miniArtworkSize: 44,
+  playButtonSize: 64,
+  playIconSize: 30,
+  transportIconSize: 32,
+  toggleIconSize: 28,
+  progressTrackHeight: 4,
   focusRingWidth: 2,
   maxFontScale: 2,
 } as const;
