@@ -117,3 +117,29 @@ describe('auth store', () => {
     expect(store.getState().status).toBe('signedOut');
   });
 });
+
+describe('getFreshAccessToken', () => {
+  it('returns the current token while it is valid and refreshes near expiry', async () => {
+    const { storage } = memoryStorage({ refresh: tokens(1).refreshToken });
+    const api = fakeApi();
+    const store = createAuthStore({ api, storage });
+    store.setState({
+      status: 'signedIn',
+      user,
+      accessToken: 'still-good',
+      accessTokenExpiresAt: Date.now() + 10 * 60_000,
+    });
+    await expect(store.getState().getFreshAccessToken()).resolves.toBe('still-good');
+    expect(api.refresh).not.toHaveBeenCalled();
+
+    store.setState({ accessTokenExpiresAt: Date.now() + 30_000 });
+    await expect(store.getState().getFreshAccessToken()).resolves.toBe('access-2');
+    expect(api.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns null when signed out', async () => {
+    const store = createAuthStore({ api: fakeApi(), storage: memoryStorage().storage });
+    store.setState({ status: 'signedOut' });
+    await expect(store.getState().getFreshAccessToken()).resolves.toBeNull();
+  });
+});

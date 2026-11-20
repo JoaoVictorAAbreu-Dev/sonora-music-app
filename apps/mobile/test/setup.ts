@@ -22,4 +22,39 @@ jest.mock(
   () => require('react-native-safe-area-context/jest/mock').default,
 );
 
+jest.mock('react-native-track-player', () => {
+  const fn = () => jest.fn(async () => undefined);
+  return {
+    __esModule: true,
+    default: {
+      setupPlayer: fn(),
+      updateOptions: fn(),
+      load: fn(),
+      play: fn(),
+      pause: fn(),
+      stop: fn(),
+      seekTo: fn(),
+      setVolume: fn(),
+      getPosition: jest.fn(async () => 0),
+      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+      registerPlaybackService: jest.fn(),
+    },
+    useProgress: jest.fn(() => ({ position: 84, duration: 221, buffered: 100 })),
+    Capability: {},
+    AppKilledPlaybackBehavior: {},
+    Event: {},
+    State: {
+      None: 'none',
+      Ready: 'ready',
+      Playing: 'playing',
+      Paused: 'paused',
+      Stopped: 'stopped',
+      Loading: 'loading',
+      Buffering: 'buffering',
+      Error: 'error',
+      Ended: 'ended',
+    },
+  };
+});
+
 require('react-native-reanimated').setUpTests();
