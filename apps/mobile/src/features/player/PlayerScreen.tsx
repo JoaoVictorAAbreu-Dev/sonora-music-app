@@ -1,4 +1,5 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
 import { GlassSurface } from '@/components/GlassSurface';
@@ -8,7 +9,8 @@ import { Artwork } from '@/components/catalog/Artwork';
 import { SkeletonBlock, SkeletonPulse } from '@/components/catalog/Skeleton';
 import { PlayPauseButton } from '@/components/player/PlayPauseButton';
 import { SeekBar } from '@/components/player/SeekBar';
-import { color, layout, radius, spacing } from '@/theme';
+import { color, duration, layout, radius, spacing } from '@/theme';
+import { bezier } from '@/lib/motion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatTime, spokenTime } from './format';
 import { playerStore, usePlayer } from './index';
@@ -32,12 +34,12 @@ export function PlayerScreen() {
   const shuffle = usePlayer((s) => s.shuffle);
   const repeat = usePlayer((s) => s.repeat);
   const volume = usePlayer((s) => s.volume);
-  const { position, duration } = usePlaybackProgress();
+  const { position, duration: engineDuration } = usePlaybackProgress();
   const p = playerStore.getState();
 
   const coverSize = width - 2 * layout.screenMargin;
   const loading = status === 'loading';
-  const total = duration || track?.durationSeconds || 0;
+  const total = engineDuration || track?.durationSeconds || 0;
 
   return (
     <View
@@ -55,11 +57,19 @@ export function PlayerScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <Artwork
-        uri={loading ? null : (track?.artworkUrl ?? null)}
-        size={coverSize}
-        radius={radius.xl}
-      />
+      {/* Cover cross-fades when the track changes (Reanimated skips it with Reduce Motion). */}
+      <Animated.View
+        key={track?.id ?? 'none'}
+        entering={FadeIn.duration(duration.screen).easing(bezier('standard'))}
+        exiting={FadeOut.duration(duration.micro)}
+        testID="player-cover"
+      >
+        <Artwork
+          uri={loading ? null : (track?.artworkUrl ?? null)}
+          size={coverSize}
+          radius={radius.xl}
+        />
+      </Animated.View>
 
       {loading || !track ? (
         <SkeletonPulse>
@@ -188,6 +198,13 @@ export function PlayerScreen() {
             onPress={() => void p.seekBy(JUMP_SECONDS)}
           />
         </View>
+        <IconButton
+          testID="player-queue"
+          icon="queue"
+          label="Abrir fila"
+          size={layout.toggleIconSize}
+          onPress={() => router.push('/queue')}
+        />
       </View>
 
       <View style={styles.volume}>
@@ -248,7 +265,7 @@ const styles = StyleSheet.create({
     top: -spacing.xs,
     color: color.action.primary,
   },
-  jumpRow: { flexDirection: 'row', gap: spacing.md },
+  jumpRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   flex: { flex: 1 },
   volume: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });
