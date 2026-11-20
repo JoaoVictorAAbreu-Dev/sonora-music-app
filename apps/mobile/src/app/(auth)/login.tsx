@@ -11,6 +11,7 @@ export default function LoginScreen() {
         onSubmit={(v) => authStore.getState().signIn(v)}
         onBack={() => (router.canGoBack() ? router.back() : router.replace('/welcome'))}
         onCreateAccount={() => router.push('/sign-up')}
+        onForgotPassword={() => router.push('/forgot-password')}
       />
     </AuthLayout>
   );

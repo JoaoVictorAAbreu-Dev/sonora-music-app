@@ -22,6 +22,8 @@ export const copy = {
   network: 'Sem conexão. Verifique a internet e tente de novo.',
   generic: 'Algo deu errado. Tente de novo.',
   comingSoon: 'Em breve',
+  resetTokenInvalid: 'Este link expirou ou já foi usado. Peça um novo.',
+  passwordChanged: 'Senha alterada. Entre com a nova senha.',
 };
 
 export function emailError(value: string, required = true): string | undefined {
@@ -50,6 +52,8 @@ export function errorMessage(err: unknown): string {
       return copy.invalidCredentials;
     case 'EMAIL_TAKEN':
       return copy.emailTaken;
+    case 'RESET_TOKEN_INVALID':
+      return copy.resetTokenInvalid;
     case 'RATE_LIMITED':
       return copy.rateLimited;
     case 'NETWORK_ERROR':

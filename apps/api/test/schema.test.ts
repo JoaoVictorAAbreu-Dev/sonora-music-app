@@ -16,6 +16,7 @@ describe('first migration', () => {
     expect(r.rows.map((x) => x.table_name)).toEqual([
       'auth_identities',
       'favorites',
+      'password_reset_tokens',
       'play_history',
       'playlist_tracks',
       'playlists',
@@ -35,6 +36,7 @@ describe('first migration', () => {
       'auth_identities_provider_user_uq',
       'auth_identities_user_idx',
       'refresh_tokens_hash_uq',
+      'password_reset_tokens_hash_uq',
       'refresh_tokens_family_idx',
       'refresh_tokens_user_idx',
       'favorites_user_created_idx',

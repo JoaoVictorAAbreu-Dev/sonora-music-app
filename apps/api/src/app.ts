@@ -1,3 +1,5 @@
+import { createMailer, type Mailer } from './mail/mailer';
+import { createSocialVerifier, remoteProviders, type SocialVerifier } from './auth/social';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import Fastify, { type FastifyInstance } from 'fastify';
@@ -35,6 +37,10 @@ export interface BuildOptions {
   logStream?: { write(msg: string): void };
   /** Test hook: fetch used for Jamendo (defaults to global fetch). */
   jamendoFetch?: typeof fetch;
+  /** Test hook: outgoing e-mail (defaults to MAIL_PROVIDER). */
+  mailer?: Mailer;
+  /** Test hook: Google/Apple ID token verification (defaults to the providers' public keys). */
+  verifySocial?: SocialVerifier;
 }
 
 export async function buildApp(
@@ -86,6 +92,12 @@ export async function buildApp(
         ...sessionDeps,
         ipLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_IP, 60_000),
         emailLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_EMAIL, 15 * 60_000),
+        mailer: options.mailer ?? createMailer(config.MAIL_PROVIDER, app.log),
+        passwordResetUrl: config.PASSWORD_RESET_URL,
+        passwordResetTtlSeconds: config.PASSWORD_RESET_TTL,
+        verifySocial:
+          options.verifySocial ??
+          createSocialVerifier(remoteProviders(config.GOOGLE_CLIENT_IDS, config.APPLE_CLIENT_IDS)),
       });
       void v1.register(meRoutes, { db, accessTokens });
       void v1.register(catalogRoutes, {

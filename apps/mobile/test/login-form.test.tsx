@@ -6,7 +6,14 @@ import { ApiRequestError } from '@/lib/api/client';
 function renderForm(onSubmit: jest.Mock<Promise<void>> = jest.fn(async () => undefined)) {
   return {
     onSubmit,
-    view: render(<LoginForm onSubmit={onSubmit} onBack={jest.fn()} onCreateAccount={jest.fn()} />),
+    view: render(
+      <LoginForm
+        onSubmit={onSubmit}
+        onBack={jest.fn()}
+        onCreateAccount={jest.fn()}
+        onForgotPassword={jest.fn()}
+      />,
+    ),
   };
 }
 

@@ -4,6 +4,7 @@ import {
   refreshResponseSchema,
   type LoginBody,
   type RegisterBody,
+  type SocialBody,
   type UpdateMeBody,
 } from '@sonora/shared';
 import type { ApiClient } from './client';
@@ -36,6 +37,25 @@ export function createAuthApi(client: ApiClient) {
       client.request('/v1/auth/logout', {
         method: 'POST',
         body: { refreshToken },
+        auth: false,
+      }),
+    social: (body: SocialBody) =>
+      client.request('/v1/auth/social', {
+        method: 'POST',
+        body,
+        schema: authResponseSchema,
+        auth: false,
+      }),
+    forgotPassword: (email: string) =>
+      client.request('/v1/auth/password/forgot', {
+        method: 'POST',
+        body: { email },
+        auth: false,
+      }),
+    resetPassword: (token: string, password: string) =>
+      client.request('/v1/auth/password/reset', {
+        method: 'POST',
+        body: { token, password },
         auth: false,
       }),
     me: () => client.request('/v1/me', { schema: meResponseSchema }),

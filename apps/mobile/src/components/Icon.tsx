@@ -9,7 +9,7 @@ export interface IconProps {
   name: IconName;
   /** Use the "-fill" variant when Figma has one (active tab, playing, favorited). */
   filled?: boolean;
-  tint?: keyof typeof color.icon | 'onAction' | 'live';
+  tint?: keyof typeof color.icon | 'onAction' | 'live' | 'success';
   size?: number;
 }
 
@@ -17,6 +17,7 @@ const tints = {
   ...color.icon,
   onAction: color.text.onAction,
   live: color.signal.live,
+  success: color.state.success,
 };
 
 export function Icon({

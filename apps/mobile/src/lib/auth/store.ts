@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { useStore } from 'zustand';
-import type { LoginBody, RegisterBody, TokenPair, User } from '@sonora/shared';
+import type { LoginBody, RegisterBody, SocialBody, TokenPair, User } from '@sonora/shared';
 import { createApiClient, ApiRequestError, type ApiClient } from '../api/client';
 import { createAuthApi, type AuthApi } from '../api/auth-api';
 import { API_URL } from '../config';
@@ -19,6 +19,8 @@ export interface AuthState {
   bootstrap(): Promise<void>;
   signIn(body: Omit<LoginBody, 'device'>): Promise<void>;
   signUp(body: Omit<RegisterBody, 'device'>): Promise<void>;
+  /** Google/Apple: the native SDK's ID token, verified by the API (M6). */
+  signInWithProvider(body: Omit<SocialBody, 'device'>): Promise<void>;
   signOut(): Promise<void>;
   /** Deletes the account on the server, then clears the local session. */
   deleteAccount(): Promise<void>;
@@ -104,6 +106,11 @@ export function createAuthStore(deps: {
 
       async signUp(body) {
         const res = await api.register({ ...body, device });
+        await adopt(res.user, res.tokens);
+      },
+
+      async signInWithProvider(body) {
+        const res = await api.social({ ...body, device });
         await adopt(res.user, res.tokens);
       },
 

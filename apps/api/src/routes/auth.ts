@@ -1,15 +1,21 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import {
+  forgotPasswordBodySchema,
   loginBodySchema,
   logoutBodySchema,
   refreshBodySchema,
   registerBodySchema,
+  resetPasswordBodySchema,
+  socialBodySchema,
   type AuthResponse,
   type RefreshResponse,
 } from '@sonora/shared';
 import type { AttemptLimiter } from '../auth/attempt-limiter';
 import { hashPassword, verifyPassword } from '../auth/passwords';
+import { createResetToken, resetPassword } from '../auth/password-reset';
+import type { SocialVerifier } from '../auth/social';
+import { resolveSocialAccount } from '../auth/social-accounts';
 import {
   endSession,
   rotateSession,
@@ -19,11 +25,16 @@ import {
 } from '../auth/sessions';
 import { users } from '../db/schema';
 import { AppError, parse } from '../errors';
+import type { Mailer } from '../mail/mailer';
 import { toUserDto } from './users';
 
 export interface AuthRouteDeps extends SessionDeps {
   ipLimiter: AttemptLimiter;
   emailLimiter: AttemptLimiter;
+  mailer: Mailer;
+  passwordResetUrl: string;
+  passwordResetTtlSeconds: number;
+  verifySocial: SocialVerifier;
 }
 
 const UNIQUE_VIOLATION = '23505';
@@ -101,6 +112,46 @@ export async function authRoutes(app: FastifyInstance, deps: AuthRouteDeps) {
       }
       throw err;
     }
+  });
+
+  // M6: Google / Apple. The ID token is verified here; the app is never trusted with identity.
+  app.post('/social', async (req, reply) => {
+    const body = parse(socialBodySchema, req.body);
+    const identity = await deps.verifySocial(body.provider, body.idToken, body.nonce);
+    const { user, created, linked } = await resolveSocialAccount(deps.db, identity, body);
+    if (linked) {
+      req.log.info(
+        { event: 'identity_linked', userId: user.id, provider: body.provider },
+        'provider identity linked by verified e-mail',
+      );
+    }
+    const tokens = await startSession(deps, user.id, body.device);
+    const res: AuthResponse = { user: toUserDto(user), tokens };
+    return reply.status(created ? 201 : 200).send(res);
+  });
+
+  // T04. Same 202 whether or not the account exists, and the e-mail is sent in the background,
+  // so neither the answer nor its timing reveals registered addresses.
+  app.post('/password/forgot', async (req, reply) => {
+    const { email } = parse(forgotPasswordBodySchema, req.body);
+    limitEmail(email);
+    const [user] = await deps.db.select({ id: users.id }).from(users).where(eq(users.email, email));
+    if (user) {
+      const token = await createResetToken(deps.db, user.id, deps.passwordResetTtlSeconds);
+      const sep = deps.passwordResetUrl.includes('?') ? '&' : '?';
+      const url = `${deps.passwordResetUrl}${sep}token=${encodeURIComponent(token)}`;
+      deps.mailer.sendPasswordReset(email, url).catch((err: unknown) => {
+        req.log.error({ err, event: 'mail_failed', kind: 'password_reset' }, 'reset e-mail failed');
+      });
+    }
+    return reply.status(202).send();
+  });
+
+  app.post('/password/reset', async (req, reply) => {
+    const body = parse(resetPasswordBodySchema, req.body);
+    const userId = await resetPassword(deps.db, body.token, body.password);
+    req.log.info({ event: 'password_reset', userId }, 'password reset; sessions revoked');
+    return reply.status(204).send();
   });
 
   app.post('/logout', async (req, reply) => {

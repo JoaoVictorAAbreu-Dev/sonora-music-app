@@ -14,10 +14,11 @@ export interface LoginFormProps {
   onSubmit(values: { email: string; password: string }): Promise<void>;
   onBack(): void;
   onCreateAccount(): void;
+  onForgotPassword(): void;
 }
 
 /** T02 Entrar: default, "Entrando" (loading) and "Credenciais inválidas" (error + shake). */
-export function LoginForm({ onSubmit, onBack, onCreateAccount }: LoginFormProps) {
+export function LoginForm({ onSubmit, onBack, onCreateAccount, onForgotPassword }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
@@ -99,8 +100,8 @@ export function LoginForm({ onSubmit, onBack, onCreateAccount }: LoginFormProps)
           <Button
             variant="text"
             label="Esqueci a senha"
-            disabled
-            accessibilityHint={copy.comingSoon}
+            onPress={onForgotPassword}
+            disabled={loading}
             testID="forgot-password"
           />
         </View>

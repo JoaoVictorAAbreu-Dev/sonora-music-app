@@ -89,7 +89,17 @@ const noop = jest.fn(async () => undefined);
 describe('accessibility audit', () => {
   it.each([
     ['Welcome', () => <WelcomeScreen />],
-    ['Login', () => <LoginForm onSubmit={noop} onBack={jest.fn()} onCreateAccount={jest.fn()} />],
+    [
+      'Login',
+      () => (
+        <LoginForm
+          onSubmit={noop}
+          onBack={jest.fn()}
+          onCreateAccount={jest.fn()}
+          onForgotPassword={jest.fn()}
+        />
+      ),
+    ],
     ['Sign up', () => <SignUpForm onSubmit={noop} onBack={jest.fn()} />],
     ['Search', () => <SearchScreen />],
     ['Library', () => <LibraryScreen />],

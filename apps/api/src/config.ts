@@ -44,6 +44,19 @@ const envSchema = z.object({
   JAMENDO_TIMEOUT_MS: z.coerce.number().int().min(500).max(30_000).default(5000),
   /** Catalog requests per signed-in user per minute. */
   CATALOG_RATE_LIMIT_PER_USER: z.coerce.number().int().positive().default(120),
+  /** OAuth client ids whose Google ID tokens are accepted (iOS, Android, web). Empty = disabled. */
+  GOOGLE_CLIENT_IDS: csv,
+  /** Apple audiences accepted: the iOS bundle id (and a Services ID, if any). Empty = disabled. */
+  APPLE_CLIENT_IDS: csv,
+  /**
+   * How reset e-mails are sent. `none` drops them (logs a warning without the address);
+   * `log` writes the link to the log, for local development only. A real provider is pending (Q14).
+   */
+  MAIL_PROVIDER: z.enum(['none', 'log']).default('none'),
+  /** Base of the link in the reset e-mail; `?token=…` is appended. The app handles sonora://. */
+  PASSWORD_RESET_URL: z.string().default('sonora://reset-password'),
+  /** Reset link lifetime in seconds (default 30 minutes). */
+  PASSWORD_RESET_TTL: z.coerce.number().int().min(300).max(86400).default(1800),
   /** Number of reverse proxies in front of the API (Caddy = 1) so client IPs are correct. */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
 });
@@ -56,6 +69,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     // Only names and messages — never values, which may be secrets.
     const problems = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`);
     throw new Error(`Invalid environment:\n  ${problems.join('\n  ')}`);
+  }
+  if (parsed.data.NODE_ENV === 'production' && parsed.data.MAIL_PROVIDER === 'log') {
+    throw new Error('Invalid environment:\n  MAIL_PROVIDER: "log" is not allowed in production');
   }
   return parsed.data;
 }
