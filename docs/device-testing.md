@@ -56,4 +56,18 @@ The flow signs up a new `maestro-<timestamp>@example.com` account, lands on Iní
 | Offline launch       | Airplane mode, reopen while signed in                                               | Still signed in (cached profile)                                                                   |
 | Glass                | Tab bar on iOS 26+ and with Reduce Transparency on                                  | Liquid Glass; solid fallback when transparency is reduced and on Android                           |
 
+## 5. Player checklist (M4)
+
+| Check               | How                                                                      | Expected                                                   |
+| ------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| Play                | Tap a track on Início or Buscar                                          | Mini player appears above the tab bar; audio starts        |
+| Background          | Lock the phone / switch apps                                             | Audio keeps playing                                        |
+| Lock screen         | Use play/pause, next, previous, ±15 s on the lock screen or notification | Each control works; artwork and title shown                |
+| Interruptions       | Receive a call / start another audio app                                 | Playback pauses and resumes as the OS decides              |
+| Silent switch (iOS) | Turn on silent mode                                                      | Music still plays                                          |
+| Long session        | Play for more than 15 minutes, then skip                                 | The next track loads (access token is refreshed per track) |
+| Queue               | Player › Fila: drag the handle, swipe left to remove, VoiceOver actions  | Order changes; removed rows animate out                    |
+| History             | Listen to a track for 30 s                                               | It shows up in “Continuar ouvindo” on Início               |
+| New Architecture    | Any of the above failing at the native level                             | Report it: see open question Q18 (RNTP vs expo-audio)      |
+
 Please note the device, OS version and any failure (with a screenshot) so it can be fixed.

@@ -31,13 +31,15 @@ const list = [track(1), track(2), track(3), track(4)];
 
 function setup(token: string | null = 'tok') {
   const engine = fakeEngine();
+  const reportPlay = jest.fn(async () => undefined);
   const store = createPlayerStore({
     engine,
     streamUrl: (p) => `https://api.test${p}`,
     getAccessToken: async () => token,
+    reportPlay,
     random: () => 0, // deterministic shuffle
   });
-  return { engine, store, s: () => store.getState() };
+  return { engine, store, reportPlay, s: () => store.getState() };
 }
 
 const currentId = (s: () => { current(): { id: string } | null }) => s().current()?.id;
@@ -174,6 +176,85 @@ describe('player store', () => {
     expect(s()).toMatchObject({ queue: [], status: 'idle' });
     expect(s().current()).toBeNull();
     expect(engine.stop).toHaveBeenCalled();
+  });
+});
+
+describe('queue editing', () => {
+  const ids = (s: () => { queue: { id: string }[] }) => s().queue.map((t) => t.id);
+
+  it('moves upcoming tracks and keeps the current one', async () => {
+    const { s } = setup();
+    await s().playList(list, 0);
+    s().moveInQueue(3, 1);
+    expect(ids(s)).toEqual(['1', '4', '2', '3']);
+    expect(currentId(s)).toBe('1');
+    s().moveInQueue(0, 2); // moving the current track updates the index
+    expect(ids(s)).toEqual(['4', '2', '1', '3']);
+    expect(s().index).toBe(2);
+    s().moveInQueue(0, 99); // out of range: ignored
+    expect(ids(s)).toEqual(['4', '2', '1', '3']);
+  });
+
+  it('removes tracks before, after and at the current position', async () => {
+    const { engine, s } = setup();
+    await s().playList(list, 1);
+    await s().removeFromQueue(3);
+    expect(ids(s)).toEqual(['1', '2', '3']);
+    await s().removeFromQueue(0);
+    expect(ids(s)).toEqual(['2', '3']);
+    expect(currentId(s)).toBe('2');
+    const loads = engine.loaded.length;
+    await s().removeFromQueue(0); // the playing track → next one starts
+    expect(currentId(s)).toBe('3');
+    expect(engine.loaded).toHaveLength(loads + 1);
+    await s().removeFromQueue(0); // last one → player resets
+    expect(s().queue).toEqual([]);
+  });
+
+  it('clears what comes next and appends tracks', async () => {
+    const { s } = setup();
+    await s().playList(list, 1);
+    s().clearUpcoming();
+    expect(ids(s)).toEqual(['1', '2']);
+    s().addToQueue(track(9));
+    expect(ids(s)).toEqual(['1', '2', '9']);
+  });
+
+  it('adding to an empty queue starts playing', async () => {
+    const { engine, s } = setup();
+    s().addToQueue(track(7));
+    await new Promise<void>((r) => setImmediate(() => r()));
+    expect(currentId(s)).toBe('7');
+    expect(engine.play).toHaveBeenCalled();
+  });
+});
+
+describe('play reporting', () => {
+  it('reports once after 30 s of listening', async () => {
+    const { s, reportPlay } = setup();
+    await s().playList(list, 0); // 181 s track
+    s().onProgress(10);
+    expect(reportPlay).not.toHaveBeenCalled();
+    s().onProgress(30);
+    s().onProgress(31);
+    expect(reportPlay).toHaveBeenCalledTimes(1);
+    expect(reportPlay).toHaveBeenCalledWith('1');
+    await s().next();
+    s().onProgress(45);
+    expect(reportPlay).toHaveBeenLastCalledWith('2');
+  });
+
+  it('uses half the length for short tracks and reports a replay again', async () => {
+    const { s, reportPlay } = setup();
+    const short = { ...track(5), durationSeconds: 20 };
+    await s().playList([short], 0);
+    s().onProgress(10);
+    expect(reportPlay).toHaveBeenCalledTimes(1);
+    s().cycleRepeat();
+    s().cycleRepeat(); // repeat one
+    await s().onTrackEnded();
+    s().onProgress(12);
+    expect(reportPlay).toHaveBeenCalledTimes(2);
   });
 });
 
