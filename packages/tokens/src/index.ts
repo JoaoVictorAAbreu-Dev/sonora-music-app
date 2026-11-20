@@ -38,7 +38,14 @@ export const duration = {
 } as const;
 
 /** Opacity of disabled controls (Figma: Desabilitado = 40%). */
-export const opacity = { disabled: 0.4 } as const;
+export const opacity = {
+  disabled: 0.4,
+  /** "Linha de faixa / Indisponível". */
+  unavailable: 0.55,
+  /** Skeleton pulse lower bound (100% ↔ 50%) and the static value with Reduce Motion (70%). */
+  skeletonLow: 0.5,
+  skeletonStatic: 0.7,
+} as const;
 
 /** Cubic-bezier control points [x1, y1, x2, y2]; `linear` is the identity curve. */
 export const easing = {
@@ -99,6 +106,16 @@ export const layout = {
   borderEmphasis: 2,
   iconSize: 24,
   brandIconSize: 20,
+  /** Catalog pieces from Figma "03 Componentes" and T05/T06. */
+  albumCardWidth: 160,
+  rowArtworkSize: 48,
+  artistAvatarSize: 80,
+  genreTileHeight: 88,
+  emptyIllustrationSize: 96,
+  emptyIconSize: 40,
+  /** Skeleton bar heights (title / subtitle) from "Esqueleto". */
+  skeletonTitleHeight: 16,
+  skeletonCaptionHeight: 12,
   focusRingWidth: 2,
   maxFontScale: 2,
 } as const;
@@ -122,12 +139,23 @@ export const brand = {
   apple: { background: '#000000', pressed: '#1A1A1A', border: '#FFFFFF', text: '#FFFFFF' },
 } as const;
 
+/** "Explorar por gênero" tiles on T06 (linear gradients, dark → light). Not Figma variables. */
+export const genreGradient = {
+  pop: ['#A3470A', '#F5891F'],
+  rock: ['#0E6B73', '#63C8D1'],
+  hiphop: ['#8C1D3A', '#E7445E'],
+  electronic: ['#5B6B1E', '#EFE7BA'],
+  mpb: ['#2F4A7A', '#63C8D1'],
+  jazz: ['#6B3F1F', '#F0D576'],
+} as const satisfies Record<string, readonly [string, string]>;
+
 /** "Reduce Motion": replace movement with a short fade of this duration. */
 export const reducedMotionFade = duration.instant;
 
 export const tokens = {
   color,
   brand,
+  genreGradient,
   opacity,
   motionPattern,
   spacing,
