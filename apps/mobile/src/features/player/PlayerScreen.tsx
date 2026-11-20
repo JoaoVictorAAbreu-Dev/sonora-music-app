@@ -1,5 +1,6 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
 import { GlassSurface } from '@/components/GlassSurface';
@@ -10,7 +11,6 @@ import { SkeletonBlock, SkeletonPulse } from '@/components/catalog/Skeleton';
 import { PlayPauseButton } from '@/components/player/PlayPauseButton';
 import { SeekBar } from '@/components/player/SeekBar';
 import { color, duration, layout, radius, spacing } from '@/theme';
-import { bezier } from '@/lib/motion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FavoriteButton } from '@/features/library/FavoriteButton';
 import { openTrackOptions } from '@/features/library/track-actions';
@@ -30,6 +30,7 @@ const repeatLabel: Record<RepeatMode, string> = {
 /** T12 Player expandido: default, Carregando, Buffering and Erro de reprodução. */
 export function PlayerScreen() {
   const insets = useSafeAreaInsets();
+  const motion = useMotion();
   const { width } = useWindowDimensions();
   const track = usePlayer((s) => s.queue[s.index] ?? null);
   const status = usePlayer((s) => s.status);
@@ -71,8 +72,8 @@ export function PlayerScreen() {
       {/* Cover cross-fades when the track changes (Reanimated skips it with Reduce Motion). */}
       <Animated.View
         key={track?.id ?? 'none'}
-        entering={FadeIn.duration(duration.screen).easing(bezier('standard'))}
-        exiting={FadeOut.duration(duration.micro)}
+        entering={motion.fadeIn(duration.screen, 'standard')}
+        exiting={motion.fadeOut()}
         testID="player-cover"
       >
         <Artwork

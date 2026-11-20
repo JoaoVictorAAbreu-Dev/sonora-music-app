@@ -70,4 +70,14 @@ The flow signs up a new `maestro-<timestamp>@example.com` account, lands on Iní
 | History             | Listen to a track for 30 s                                               | It shows up in “Continuar ouvindo” on Início               |
 | New Architecture    | Any of the above failing at the native level                             | Report it: see open question Q18 (RNTP vs expo-audio)      |
 
+## 6. Accessibility and settings checklist (M7)
+
+| Check                      | How                                                 | Expected                                                                             |
+| -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| In-app Reduce Motion       | Biblioteca › Configurações › Reduzir movimento      | Transitions become quick fades even with the OS setting off                          |
+| In-app Reduce Transparency | Configurações › Reduzir transparência               | Tab bar and mini player turn solid                                                   |
+| Continuous playback        | Turn “Reprodução contínua” off and let a track end  | Playback stops at the end of the track                                               |
+| Offline                    | Airplane mode on a tab screen                       | Yellow-bordered banner “Sem conexão…”; “Tentar de novo” refetches after reconnecting |
+| Delete account             | Configurações › Excluir minha conta › Excluir conta | Back to Welcome; signing in with the old password fails                              |
+
 Please note the device, OS version and any failure (with a screenshot) so it can be fixed.

@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { SlideInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, duration, layout, opacity, radius, spacing, withAlpha } from '@/theme';
-import { bezier } from '@/lib/motion';
+import { color, layout, opacity, radius, spacing, withAlpha } from '@/theme';
 import { Text } from './Text';
 
 /**
@@ -26,6 +26,7 @@ export function BottomSheet({
   testID?: string;
 }) {
   const insets = useSafeAreaInsets();
+  const motion = useMotion();
   return (
     <Modal
       visible={visible}
@@ -42,7 +43,7 @@ export function BottomSheet({
           onPress={onClose}
         />
         <Animated.View
-          entering={SlideInDown.duration(duration.complex).easing(bezier('entrance'))}
+          entering={motion.sheetIn()}
           style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}
           accessibilityViewIsModal
           testID={testID}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
@@ -10,7 +11,6 @@ import { Text } from '@/components/Text';
 import { TrackRow } from '@/components/catalog/TrackRow';
 import { QueueItem } from '@/components/player/QueueItem';
 import { color, duration, layout, radius, spacing } from '@/theme';
-import { bezier } from '@/lib/motion';
 import { playerStore, usePlayer } from './index';
 
 /** T13 Fila: now playing, "A seguir" with drag-to-reorder and swipe-to-remove, empty state. */
@@ -28,7 +28,7 @@ export function QueueScreen() {
   const target = drag
     ? Math.min(queue.length - 1, Math.max(index + 1, drag.from + Math.round(drag.dy / rowHeight)))
     : null;
-  const layoutAnim = LinearTransition.duration(duration.standard).easing(bezier('standard'));
+  const motion = useMotion();
 
   return (
     <View testID="screen-queue" style={[styles.root, { paddingTop: insets.top + spacing.sm }]}>
@@ -94,8 +94,8 @@ export function QueueScreen() {
             return (
               <Animated.View
                 key={`${t.id}-${at}`}
-                layout={layoutAnim}
-                exiting={FadeOut.duration(duration.standard)}
+                layout={motion.listLayout()}
+                exiting={motion.fadeOut(duration.standard)}
               >
                 {target === at && drag && drag.from !== at ? (
                   <View style={styles.dropIndicator} testID="queue-drop-indicator" />

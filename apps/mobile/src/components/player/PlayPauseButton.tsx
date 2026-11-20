@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { color, duration, layout } from '@/theme';
-import { bezier } from '@/lib/motion';
 import { Icon } from '../Icon';
 
 const SIZE = layout.playButtonSize;
@@ -19,7 +19,7 @@ export function PlayPauseButton({
   onPress(): void;
   testID?: string;
 }) {
-  const fade = { duration: duration.micro, easing: bezier('standard') };
+  const motion = useMotion();
   return (
     <Pressable
       testID={testID}
@@ -39,8 +39,8 @@ export function PlayPauseButton({
       ) : null}
       <Animated.View
         key={playing ? 'pause' : 'play'}
-        entering={FadeIn.duration(fade.duration).easing(fade.easing)}
-        exiting={FadeOut.duration(fade.duration).easing(fade.easing)}
+        entering={motion.fadeIn(duration.micro, 'standard')}
+        exiting={motion.fadeOut(duration.micro)}
       >
         <Icon name={playing ? 'pause' : 'play'} filled tint="onAction" size={ICON} />
       </Animated.View>

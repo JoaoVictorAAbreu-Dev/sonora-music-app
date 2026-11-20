@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
@@ -19,7 +20,6 @@ import { QueueItem } from '@/components/player/QueueItem';
 import { errorCopy } from '@/features/catalog/copy';
 import { playerStore } from '@/features/player';
 import { showToast } from '@/features/ui/toast';
-import { bezier } from '@/lib/motion';
 import { color, duration, layout, radius, spacing } from '@/theme';
 import { libraryApi, useInvalidatePlaylists, usePlaylist } from './api';
 
@@ -29,6 +29,7 @@ const playable = (entries: PlaylistEntry[]): Track[] =>
 /** T10 Playlist: cover, title, "Tocar", tracks (drag/swipe/actions) and the manage sheet. */
 export function PlaylistScreen({ id }: { id: string }) {
   const insets = useSafeAreaInsets();
+  const motion = useMotion();
   const playlist = usePlaylist(id);
   const invalidate = useInvalidatePlaylists();
   const [order, setOrder] = useState<PlaylistEntry[] | null>(null);
@@ -158,8 +159,8 @@ export function PlaylistScreen({ id }: { id: string }) {
               e.track ? (
                 <Animated.View
                   key={e.entryId}
-                  layout={LinearTransition.duration(duration.standard).easing(bezier('standard'))}
-                  exiting={FadeOut.duration(duration.standard)}
+                  layout={motion.listLayout()}
+                  exiting={motion.fadeOut(duration.standard)}
                 >
                   {target === i && drag && drag.from !== i ? <View style={styles.drop} /> : null}
                   <QueueItem

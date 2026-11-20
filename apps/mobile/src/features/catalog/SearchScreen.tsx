@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import type { SearchResponse, SearchType, Track } from '@sonora/shared';
 import { EmptyState } from '@/components/EmptyState';
 import { Icon } from '@/components/Icon';
@@ -16,8 +17,7 @@ import { FilterChip } from '@/components/catalog/FilterChip';
 import { GenreTile, type Genre } from '@/components/catalog/GenreTile';
 import { LoadingList } from '@/components/catalog/Skeleton';
 import { TrackRow } from '@/components/catalog/TrackRow';
-import { duration, layout, spacing } from '@/theme';
-import { bezier } from '@/lib/motion';
+import { layout, spacing } from '@/theme';
 import { useSearch } from './api';
 import { errorCopy } from './copy';
 import { useRecentSearches } from './recent-searches';
@@ -62,6 +62,7 @@ export function SearchScreen({
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SearchType>('all');
   const recent = useRecentSearches();
+  const motion = useMotion();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const trimmed = text.trim();
@@ -137,7 +138,7 @@ export function SearchScreen({
 
       <Animated.View
         key={mode}
-        entering={FadeIn.duration(duration.standard).easing(bezier('entrance'))}
+        entering={motion.fadeIn()}
         style={styles.body}
         testID={`search-${mode}`}
       >

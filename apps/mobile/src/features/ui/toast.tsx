@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { useMotion } from '@/hooks/useMotion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 import { Icon } from '@/components/Icon';
@@ -32,6 +33,7 @@ export const showToast = (message: string) => useToast.getState().show(message);
 export function ToastHost() {
   const { message, id, hide } = useToast();
   const insets = useSafeAreaInsets();
+  const motion = useMotion();
   useEffect(() => {
     if (!message) return;
     const t = setTimeout(hide, layout.toastVisibleMs);
@@ -48,8 +50,8 @@ export function ToastHost() {
     >
       <Animated.View
         key={id}
-        entering={FadeIn.duration(duration.standard)}
-        exiting={FadeOut.duration(duration.standard)}
+        entering={motion.fadeIn()}
+        exiting={motion.fadeOut(duration.standard)}
         style={styles.toast}
         testID="toast"
         accessibilityLiveRegion="polite"
