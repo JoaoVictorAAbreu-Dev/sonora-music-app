@@ -39,6 +39,16 @@ Also create a `production` environment with required reviewers so each deploy ne
 Configurações). It is a **factual draft** of what the code does; it must be reviewed and completed
 (controller, contact) before store submission — open question Q16.
 
+## Password reset e-mails
+
+Set `MAIL_PROVIDER=smtp`, `SMTP_URL` (secret) and `MAIL_FROM` in `.env`, with SPF and DKIM for the
+sender domain configured at the provider. Point `PASSWORD_RESET_URL` at
+`https://$API_DOMAIN/reset-password`: Caddy serves `site/reset-password.html`, which opens the app
+with the token. The token is in the URL fragment, so it never reaches Caddy or API logs. If you edit
+the page's script, update the `script-src` hash in the Caddyfile (`apps/api/test/reset-link.test.ts`
+fails until they match). Verified locally on 2026-11-20: `caddy validate` and the page served with
+its CSP; no real e-mail has been sent yet.
+
 ## Monitoring
 
 - `GET /health` returns `200 {"status":"ok"}` when the API and PostgreSQL answer, `503` otherwise.

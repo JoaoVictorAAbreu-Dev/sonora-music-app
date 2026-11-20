@@ -20,6 +20,17 @@
 		file_server
 	}
 
+	# Bridge for password reset e-mails: mail apps block sonora:// links, so the e-mail points here
+	# and this page opens the app. The token travels in the URL fragment, which browsers never send,
+	# so it never reaches these logs. The CSP hash must match the inline script (checked by a test).
+	handle /reset-password {
+		root * /srv/site
+		rewrite * /reset-password.html
+		header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-SipndjtRwuJ+sSLVP20DwKncsYL2M5+4C+H2iCLX/OM='; frame-ancestors 'none'"
+		header Cache-Control "no-store"
+		file_server
+	}
+
 	handle {
 		reverse_proxy api:3000 {
 			health_uri /health

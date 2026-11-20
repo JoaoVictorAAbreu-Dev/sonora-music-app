@@ -50,10 +50,17 @@ const envSchema = z.object({
   APPLE_CLIENT_IDS: csv,
   /**
    * How reset e-mails are sent. `none` drops them (logs a warning without the address);
-   * `log` writes the link to the log, for local development only. A real provider is pending (Q14).
+   * `log` writes the link to the log (local development only); `smtp` sends through SMTP_URL.
    */
-  MAIL_PROVIDER: z.enum(['none', 'log']).default('none'),
-  /** Base of the link in the reset e-mail; `?token=…` is appended. The app handles sonora://. */
+  MAIL_PROVIDER: z.enum(['none', 'log', 'smtp']).default('none'),
+  /** smtps://user:password@host:465 (or smtp://…:587 with STARTTLS). Secret. */
+  SMTP_URL: z.string().default(''),
+  /** Sender, e.g. "Sonora <nao-responda@seu-dominio>". The domain needs SPF/DKIM at the provider. */
+  MAIL_FROM: z.string().default(''),
+  /**
+   * Base of the link in the reset e-mail. `sonora://reset-password` gets `?token=…`; an https URL
+   * (the page Caddy serves at /reset-password) gets `#token=…`, which never reaches server logs.
+   */
   PASSWORD_RESET_URL: z.string().default('sonora://reset-password'),
   /** Reset link lifetime in seconds (default 30 minutes). */
   PASSWORD_RESET_TTL: z.coerce.number().int().min(300).max(86400).default(1800),
@@ -72,6 +79,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   if (parsed.data.NODE_ENV === 'production' && parsed.data.MAIL_PROVIDER === 'log') {
     throw new Error('Invalid environment:\n  MAIL_PROVIDER: "log" is not allowed in production');
+  }
+  if (parsed.data.MAIL_PROVIDER === 'smtp' && (!parsed.data.SMTP_URL || !parsed.data.MAIL_FROM)) {
+    throw new Error('Invalid environment:\n  MAIL_PROVIDER "smtp" needs SMTP_URL and MAIL_FROM');
   }
   return parsed.data;
 }

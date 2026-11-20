@@ -92,7 +92,7 @@ export async function buildApp(
         ...sessionDeps,
         ipLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_IP, 60_000),
         emailLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_EMAIL, 15 * 60_000),
-        mailer: options.mailer ?? createMailer(config.MAIL_PROVIDER, app.log),
+        mailer: options.mailer ?? createMailer(config, app.log),
         passwordResetUrl: config.PASSWORD_RESET_URL,
         passwordResetTtlSeconds: config.PASSWORD_RESET_TTL,
         verifySocial:

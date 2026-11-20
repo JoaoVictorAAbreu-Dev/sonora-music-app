@@ -44,6 +44,13 @@ function isUniqueViolation(err: unknown): boolean {
   return e?.code === UNIQUE_VIOLATION || e?.cause?.code === UNIQUE_VIOLATION;
 }
 
+/** https links carry the token in the fragment (never sent to the server, so never logged). */
+export function resetLink(base: string, token: string): string {
+  const t = encodeURIComponent(token);
+  if (/^https?:\/\//.test(base)) return `${base}#token=${t}`;
+  return `${base}${base.includes('?') ? '&' : '?'}token=${t}`;
+}
+
 export async function authRoutes(app: FastifyInstance, deps: AuthRouteDeps) {
   // One per-IP budget shared by every /auth route; runs before the body is parsed.
   app.addHook('onRequest', async (req, reply) => {
@@ -138,8 +145,7 @@ export async function authRoutes(app: FastifyInstance, deps: AuthRouteDeps) {
     const [user] = await deps.db.select({ id: users.id }).from(users).where(eq(users.email, email));
     if (user) {
       const token = await createResetToken(deps.db, user.id, deps.passwordResetTtlSeconds);
-      const sep = deps.passwordResetUrl.includes('?') ? '&' : '?';
-      const url = `${deps.passwordResetUrl}${sep}token=${encodeURIComponent(token)}`;
+      const url = resetLink(deps.passwordResetUrl, token);
       deps.mailer.sendPasswordReset(email, url).catch((err: unknown) => {
         req.log.error({ err, event: 'mail_failed', kind: 'password_reset' }, 'reset e-mail failed');
       });
