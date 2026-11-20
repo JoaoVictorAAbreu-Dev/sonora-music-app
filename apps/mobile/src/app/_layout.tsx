@@ -7,6 +7,7 @@ import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-goog
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query';
+import { connectPlayer } from '@/features/player';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { authStore, onSignedOut, useAuth } from '@/lib/auth/store';
 import { color, interFamilies } from '@/theme';
@@ -21,11 +22,17 @@ export default function RootLayout() {
   });
   const status = useAuth((s) => s.status);
   const fadeThrough = useScreenAnimation('fade');
+  const sheet = useScreenAnimation('sheet');
 
   useEffect(() => {
     void authStore.getState().bootstrap();
+    const disconnectPlayer = connectPlayer();
     // Another user may sign in next: drop everything cached for this one.
-    return onSignedOut(() => queryClient.clear());
+    const offSignedOut = onSignedOut(() => queryClient.clear());
+    return () => {
+      offSignedOut();
+      disconnectPlayer();
+    };
   }, []);
 
   const ready = (fontsLoaded || fontError) && status !== 'bootstrapping';
@@ -52,6 +59,7 @@ export default function RootLayout() {
           {/* Route guards: signed-out users only reach (auth); signed-in users only reach (tabs). */}
           <Stack.Protected guard={signedIn}>
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="player" options={{ presentation: 'fullScreenModal', ...sheet }} />
           </Stack.Protected>
           <Stack.Protected guard={!signedIn}>
             <Stack.Screen name="(auth)" />
