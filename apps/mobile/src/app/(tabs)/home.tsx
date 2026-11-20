@@ -1,4 +1,5 @@
 import { HomeContent } from '@/features/catalog/HomeContent';
+import { openAlbum } from '@/features/catalog/CollectionScreens';
 import { useHome } from '@/features/catalog/api';
 import { playerStore } from '@/features/player';
 import { openTrackOptions } from '@/features/library/track-actions';
@@ -15,6 +16,7 @@ export default function HomeScreen() {
       onRefresh={() => void home.refetch()}
       onPlay={(track, list) => void playerStore.getState().playList(list, list.indexOf(track))}
       onMore={openTrackOptions}
+      onOpenAlbum={openAlbum}
     />
   );
 }

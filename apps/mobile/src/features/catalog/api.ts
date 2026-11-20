@@ -32,6 +32,8 @@ export const catalogApi = createCatalogApi(apiClient);
 export const catalogKeys = {
   home: ['catalog', 'home'] as const,
   search: (q: string, type: SearchType) => ['catalog', 'search', type, q] as const,
+  album: (id: string) => ['catalog', 'album', id] as const,
+  artist: (id: string) => ['catalog', 'artist', id] as const,
 };
 
 export function useHome() {
@@ -45,5 +47,19 @@ export function useSearch(q: string, type: SearchType) {
     queryKey: catalogKeys.search(query, type),
     queryFn: ({ signal }) => catalogApi.search(query, type, signal),
     enabled: query.length > 0,
+  });
+}
+
+export function useAlbum(id: string) {
+  return useQuery({
+    queryKey: catalogKeys.album(id),
+    queryFn: () => catalogApi.album(id).then((r) => r.album),
+  });
+}
+
+export function useArtist(id: string) {
+  return useQuery({
+    queryKey: catalogKeys.artist(id),
+    queryFn: () => catalogApi.artist(id).then((r) => r.artist),
   });
 }

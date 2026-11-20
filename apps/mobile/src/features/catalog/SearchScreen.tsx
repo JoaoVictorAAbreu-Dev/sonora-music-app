@@ -19,6 +19,7 @@ import { LoadingList } from '@/components/catalog/Skeleton';
 import { TrackRow } from '@/components/catalog/TrackRow';
 import { layout, spacing } from '@/theme';
 import { useSearch } from './api';
+import { openAlbum, openArtist } from './CollectionScreens';
 import { errorCopy } from './copy';
 import { useRecentSearches } from './recent-searches';
 
@@ -273,7 +274,12 @@ function Results({
     return (
       <View style={styles.grid}>
         {data.artists.map((a) => (
-          <ArtistAvatar key={a.id} artist={a} />
+          <ArtistAvatar
+            key={a.id}
+            artist={a}
+            testID={`result-artist-${a.id}`}
+            onPress={() => openArtist(a.id)}
+          />
         ))}
       </View>
     );
@@ -287,6 +293,8 @@ function Results({
             title={a.title}
             subtitle={a.artist.name}
             artworkUrl={a.artworkUrl}
+            testID={`result-album-${a.id}`}
+            onPress={() => openAlbum(a.id)}
           />
         ))}
       </View>
@@ -313,7 +321,12 @@ function Results({
           <SectionHeader title="Artistas" variant="bodyStrong" />
           <Carousel>
             {data.artists.map((a) => (
-              <ArtistAvatar key={a.id} artist={a} />
+              <ArtistAvatar
+                key={a.id}
+                artist={a}
+                testID={`result-artist-${a.id}`}
+                onPress={() => openArtist(a.id)}
+              />
             ))}
           </Carousel>
         </View>
@@ -328,6 +341,8 @@ function Results({
                 title={a.title}
                 subtitle={a.artist.name}
                 artworkUrl={a.artworkUrl}
+                testID={`result-album-${a.id}`}
+                onPress={() => openAlbum(a.id)}
               />
             ))}
           </Carousel>

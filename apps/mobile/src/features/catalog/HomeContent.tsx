@@ -26,6 +26,7 @@ export interface HomeContentProps {
   onRefresh(): void;
   onPlay?(track: Track, list: Track[]): void;
   onMore?(track: Track): void;
+  onOpenAlbum?(id: string): void;
 }
 
 /** T05 Início: greeting, "Continuar ouvindo", "Feito para você" and "Populares". */
@@ -37,6 +38,7 @@ export function HomeContent({
   onRefresh,
   onPlay,
   onMore,
+  onOpenAlbum,
 }: HomeContentProps) {
   return (
     <Screen
@@ -97,6 +99,8 @@ export function HomeContent({
                     title={a.title}
                     subtitle={a.artist.name}
                     artworkUrl={a.artworkUrl}
+                    testID={`home-album-${a.id}`}
+                    onPress={onOpenAlbum ? () => onOpenAlbum(a.id) : undefined}
                   />
                 ))}
               </Carousel>
