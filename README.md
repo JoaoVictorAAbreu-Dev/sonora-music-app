@@ -40,15 +40,21 @@ pnpm --filter @sonora/api db:generate                  # after editing src/db/sc
 
 API routes (all bodies validated with the Zod schemas in `packages/shared`):
 
-| Method | Path                | Auth   |                                                           |
-| ------ | ------------------- | ------ | --------------------------------------------------------- |
-| GET    | `/health`           | —      | Liveness + database check                                 |
-| POST   | `/v1/auth/register` | —      | email, password, acceptTerms → user + tokens              |
-| POST   | `/v1/auth/login`    | —      | email, password → user + tokens                           |
-| POST   | `/v1/auth/refresh`  | —      | refreshToken → rotated tokens (reuse revokes the session) |
-| POST   | `/v1/auth/logout`   | —      | refreshToken → 204                                        |
-| GET    | `/v1/me`            | Bearer | Current user                                              |
-| PATCH  | `/v1/me`            | Bearer | displayName                                               |
+| Method | Path                    | Auth   |                                                           |
+| ------ | ----------------------- | ------ | --------------------------------------------------------- |
+| GET    | `/health`               | —      | Liveness + database check                                 |
+| POST   | `/v1/auth/register`     | —      | email, password, acceptTerms → user + tokens              |
+| POST   | `/v1/auth/login`        | —      | email, password → user + tokens                           |
+| POST   | `/v1/auth/refresh`      | —      | refreshToken → rotated tokens (reuse revokes the session) |
+| POST   | `/v1/auth/logout`       | —      | refreshToken → 204                                        |
+| GET    | `/v1/me`                | Bearer | Current user                                              |
+| PATCH  | `/v1/me`                | Bearer | displayName                                               |
+| GET    | `/v1/search`            | Bearer | q, type (all/tracks/albums/artists), limit, offset        |
+| GET    | `/v1/tracks/:id`        | Bearer | Track                                                     |
+| GET    | `/v1/tracks/:id/stream` | Bearer | 302 redirect to the audio file                            |
+| GET    | `/v1/albums/:id`        | Bearer | Album with tracks                                         |
+| GET    | `/v1/artists/:id`       | Bearer | Artist with top tracks and albums                         |
+| GET    | `/v1/home`              | Bearer | Continue listening, made for you, popular                 |
 
 ### App
 
