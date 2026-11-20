@@ -66,6 +66,7 @@ export default function RootLayout() {
             <Stack.Screen name="queue" options={{ presentation: 'fullScreenModal', ...sheet }} />
             <Stack.Screen name="library/favorites" options={push} />
             <Stack.Screen name="library/history" options={push} />
+            <Stack.Screen name="settings" options={push} />
             <Stack.Screen name="playlist/[id]" options={push} />
             <Stack.Screen
               name="playlist-edit"

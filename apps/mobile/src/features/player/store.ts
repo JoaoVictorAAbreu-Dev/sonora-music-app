@@ -57,6 +57,8 @@ export interface PlayerDeps {
   getAccessToken(): Promise<string | null>;
   /** Records a play in the history; failures are ignored. */
   reportPlay?(trackId: string): Promise<void>;
+  /** "Reprodução contínua" (T18); when false playback stops after the current track. */
+  isContinuous?(): boolean;
   random?: () => number;
 }
 
@@ -303,6 +305,11 @@ export function createPlayerStore(deps: PlayerDeps): StoreApi<PlayerState> {
       async onTrackEnded() {
         const { repeat, index } = get();
         if (repeat === 'one') return loadAndPlay(index);
+        if (deps.isContinuous && !deps.isContinuous()) {
+          await deps.engine.seekTo(0);
+          set({ status: 'paused' });
+          return;
+        }
         return get().next();
       },
 

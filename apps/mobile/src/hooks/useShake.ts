@@ -1,20 +1,20 @@
 import { useCallback } from 'react';
 import {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { motionPattern, opacity, reducedMotionFade } from '@/theme';
 import { bezier } from '@/lib/motion';
+import { useMotionReduced } from '@/features/settings/store';
 
 /**
  * Error shake from Figma 07 (PB3a–c): −8 → +8 → 0 px, 60 ms per step.
  * With Reduce Motion it becomes a short opacity dip (≤ 100 ms) instead of movement.
  */
 export function useShake() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useMotionReduced();
   const x = useSharedValue(0);
   const fade = useSharedValue(1);
 

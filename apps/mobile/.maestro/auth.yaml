@@ -42,6 +42,8 @@ appId: ${APP_ID}
 
 - tapOn:
     id: tab-library
+- tapOn:
+    id: library-settings
 - assertVisible:
     id: signed-in-as
 - tapOn:

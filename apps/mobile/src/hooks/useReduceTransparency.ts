@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
+import { useSettings } from '@/features/settings/store';
 
-/** Mirrors the iOS "Reduce Transparency" setting (always false where unsupported). */
+/** iOS "Reduce Transparency" or the in-app setting (T18 "Reduzir transparência"). */
 export function useReduceTransparency(): boolean {
   const [enabled, setEnabled] = useState(false);
   useEffect(() => {
@@ -15,5 +16,6 @@ export function useReduceTransparency(): boolean {
       sub.remove();
     };
   }, []);
-  return enabled;
+  const app = useSettings((st) => st.reduceTransparency);
+  return enabled || app;
 }

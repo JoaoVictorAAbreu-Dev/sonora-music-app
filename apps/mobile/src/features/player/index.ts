@@ -1,6 +1,7 @@
 import { useStore } from 'zustand';
 import { API_URL } from '@/lib/config';
 import { recordPlay } from './history-api';
+import { useSettings } from '@/features/settings/store';
 import { authStore, onSignedOut } from '@/lib/auth/store';
 import { rntpEngine, subscribeEngineEvents } from './rntp-engine';
 import { createPlayerStore, type PlayerState } from './store';
@@ -11,6 +12,7 @@ export const playerStore = createPlayerStore({
   streamUrl: (path) => `${API_URL}${path}`,
   getAccessToken: () => authStore.getState().getFreshAccessToken(),
   reportPlay: recordPlay,
+  isContinuous: () => useSettings.getState().continuousPlayback,
 });
 
 let unsubscribe: (() => void) | null = null;

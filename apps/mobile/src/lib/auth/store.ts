@@ -20,6 +20,8 @@ export interface AuthState {
   signIn(body: Omit<LoginBody, 'device'>): Promise<void>;
   signUp(body: Omit<RegisterBody, 'device'>): Promise<void>;
   signOut(): Promise<void>;
+  /** Deletes the account on the server, then clears the local session. */
+  deleteAccount(): Promise<void>;
   /** Used by the API client on 401: true when a new access token was obtained. */
   refreshSession(): Promise<boolean>;
   /** Drops the local session without calling the API (refresh already failed). */
@@ -110,6 +112,11 @@ export function createAuthStore(deps: {
         await clearLocal();
         // Best effort: the local session is gone even if the server call fails.
         if (refreshToken) await api.logout(refreshToken).catch(() => undefined);
+      },
+
+      async deleteAccount() {
+        await api.deleteMe();
+        await clearLocal();
       },
 
       async refreshSession() {

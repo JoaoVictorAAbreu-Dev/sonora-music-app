@@ -1,4 +1,4 @@
-import { useReducedMotion } from 'react-native-reanimated';
+import { useMotionReduced } from '@/features/settings/store';
 import { duration, reducedMotionFade } from '@/theme';
 
 /**
@@ -7,7 +7,7 @@ import { duration, reducedMotionFade } from '@/theme';
  * (mini player → player).
  */
 export function useScreenAnimation(kind: 'push' | 'fade' | 'sheet') {
-  const reduce = useReducedMotion();
+  const reduce = useMotionReduced();
   if (reduce) return { animation: 'fade' as const, animationDuration: reducedMotionFade };
   if (kind === 'sheet') {
     return { animation: 'slide_from_bottom' as const, animationDuration: duration.complex };

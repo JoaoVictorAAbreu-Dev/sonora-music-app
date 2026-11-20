@@ -118,6 +118,28 @@ describe('auth store', () => {
   });
 });
 
+describe('deleteAccount', () => {
+  it('deletes on the server and clears the local session', async () => {
+    const { storage, peek } = memoryStorage({ refresh: tokens(1).refreshToken, user });
+    const api = fakeApi({ deleteMe: jest.fn(async () => undefined) });
+    const store = createAuthStore({ api, storage });
+    store.setState({ status: 'signedIn', user, accessToken: 'a' });
+    await store.getState().deleteAccount();
+    expect(api.deleteMe).toHaveBeenCalled();
+    expect(store.getState().status).toBe('signedOut');
+    expect(peek().refresh).toBeNull();
+  });
+
+  it('keeps the session when the server call fails', async () => {
+    const { storage } = memoryStorage({ refresh: tokens(1).refreshToken, user });
+    const api = fakeApi({ deleteMe: jest.fn(async () => Promise.reject(new Error('offline'))) });
+    const store = createAuthStore({ api, storage });
+    store.setState({ status: 'signedIn', user, accessToken: 'a' });
+    await expect(store.getState().deleteAccount()).rejects.toThrow('offline');
+    expect(store.getState().status).toBe('signedIn');
+  });
+});
+
 describe('getFreshAccessToken', () => {
   it('returns the current token while it is valid and refreshes near expiry', async () => {
     const { storage } = memoryStorage({ refresh: tokens(1).refreshToken });

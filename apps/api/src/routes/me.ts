@@ -22,6 +22,20 @@ export async function meRoutes(
     return res;
   });
 
+  // Deletes the account and everything that belongs to it (identities, sessions, favorites,
+  // playlists, history) through ON DELETE CASCADE. Access tokens already issued stop working
+  // because every authenticated route resolves the user.
+  app.delete('/me', async (req, reply) => {
+    const userId = currentUserId(req);
+    const [deleted] = await deps.db
+      .delete(users)
+      .where(eq(users.id, userId))
+      .returning({ id: users.id });
+    if (!deleted) throw new AppError('UNAUTHORIZED', 'Account not found');
+    req.log.info({ event: 'account_deleted', userId }, 'account deleted');
+    return reply.status(204).send();
+  });
+
   app.patch('/me', async (req) => {
     const body = parse(updateMeBodySchema, req.body);
     const [user] = await deps.db

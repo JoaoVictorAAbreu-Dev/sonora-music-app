@@ -1,7 +1,6 @@
 import { Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withSequence,
   withTiming,
@@ -9,6 +8,7 @@ import Animated, {
 import { Icon } from '@/components/Icon';
 import { duration, layout } from '@/theme';
 import { bezier } from '@/lib/motion';
+import { useMotionReduced } from '@/features/settings/store';
 import { useFavoriteIds, useToggleFavorite } from './api';
 
 /**
@@ -28,7 +28,7 @@ export function FavoriteButton({
 }) {
   const ids = useFavoriteIds();
   const toggle = useToggleFavorite();
-  const reduce = useReducedMotion();
+  const reduce = useMotionReduced();
   const scale = useSharedValue(1);
   const on = ids.data?.has(trackId) ?? false;
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));

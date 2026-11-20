@@ -9,6 +9,7 @@ import TabsLayout from '../src/app/(tabs)/_layout';
 import Home from '../src/app/(tabs)/home';
 import Search from '../src/app/(tabs)/search';
 import Library from '../src/app/(tabs)/library';
+import Settings from '../src/app/settings';
 import { authStore } from '@/lib/auth/store';
 import { user } from './fixtures';
 
@@ -28,6 +29,7 @@ const routes = {
   '(tabs)/home': Home,
   '(tabs)/search': Search,
   '(tabs)/library': Library,
+  settings: Settings,
 };
 
 describe('route guards', () => {
@@ -49,6 +51,8 @@ describe('route guards', () => {
 
     // Signing out swaps back to the auth stack.
     await fireEvent.press(screen.getByTestId('tab-library'));
+    expect(await screen.findByTestId('screen-library')).toBeTruthy();
+    await fireEvent.press(await screen.findByTestId('library-settings'));
     await fireEvent.press(await screen.findByTestId('sign-out'));
     expect(await screen.findByTestId('screen-welcome')).toBeTruthy();
   });

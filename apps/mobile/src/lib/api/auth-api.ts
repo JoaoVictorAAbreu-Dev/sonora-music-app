@@ -39,6 +39,7 @@ export function createAuthApi(client: ApiClient) {
         auth: false,
       }),
     me: () => client.request('/v1/me', { schema: meResponseSchema }),
+    deleteMe: () => client.request('/v1/me', { method: 'DELETE' }),
     updateMe: (body: UpdateMeBody) =>
       client.request('/v1/me', { method: 'PATCH', body, schema: meResponseSchema }),
   };

@@ -2,20 +2,20 @@ import { useEffect } from 'react';
 import { StyleSheet, View, type DimensionValue } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
 import { color, duration, layout, opacity, radius, spacing } from '@/theme';
 import { bezier } from '@/lib/motion';
+import { useMotionReduced } from '@/features/settings/store';
 
 /**
  * Pulsing placeholder (Figma "Esqueleto"): opacity 100% ↔ 50%, 600 ms each way.
  * With Reduce Motion it stays static at 70%.
  */
 export function SkeletonPulse({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
+  const reduce = useMotionReduced();
   const o = useSharedValue(reduce ? opacity.skeletonStatic : 1);
   useEffect(() => {
     if (reduce) return;

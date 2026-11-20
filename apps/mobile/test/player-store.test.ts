@@ -258,6 +258,26 @@ describe('play reporting', () => {
   });
 });
 
+describe('continuous playback setting', () => {
+  it('stops after the current track when continuous playback is off', async () => {
+    const engine = fakeEngine();
+    let continuous = false;
+    const store = createPlayerStore({
+      engine,
+      streamUrl: (p) => p,
+      getAccessToken: async () => 'tok',
+      isContinuous: () => continuous,
+    });
+    await store.getState().playList(list, 0);
+    await store.getState().onTrackEnded();
+    expect(store.getState().current()?.id).toBe('1');
+    expect(store.getState().status).toBe('paused');
+    continuous = true;
+    await store.getState().onTrackEnded();
+    expect(store.getState().current()?.id).toBe('2');
+  });
+});
+
 describe('shuffled', () => {
   it('returns a permutation without mutating the input', () => {
     const input = [1, 2, 3, 4, 5];

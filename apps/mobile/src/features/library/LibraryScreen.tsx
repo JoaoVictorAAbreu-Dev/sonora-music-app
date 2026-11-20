@@ -7,7 +7,6 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { Text } from '@/components/Text';
 import { Artwork } from '@/components/catalog/Artwork';
 import { LoadingList } from '@/components/catalog/Skeleton';
-import { authStore, useAuth } from '@/lib/auth/store';
 import { color, layout, radius, spacing } from '@/theme';
 import { useFavoriteIds, usePlaylists } from './api';
 
@@ -15,7 +14,6 @@ import { useFavoriteIds, usePlaylists } from './api';
 export function LibraryScreen() {
   const favorites = useFavoriteIds();
   const playlists = usePlaylists();
-  const email = useAuth((s) => s.user?.email);
   const favCount = favorites.data?.size;
 
   return (
@@ -47,6 +45,11 @@ export function LibraryScreen() {
           label="Recentes"
           onPress={() => router.push('/library/history')}
           testID="library-history"
+        />
+        <HubRow
+          label="Configurações"
+          onPress={() => router.push('/settings')}
+          testID="library-settings"
         />
       </View>
 
@@ -88,20 +91,6 @@ export function LibraryScreen() {
             testID="library-new-playlist"
           />
         </View>
-      </View>
-
-      <View style={[styles.margin, styles.account]}>
-        {email ? (
-          <Text variant="caption" tone="tertiary" testID="signed-in-as">
-            {`Conectado como ${email}`}
-          </Text>
-        ) : null}
-        <Button
-          variant="text"
-          label="Sair da conta"
-          onPress={() => void authStore.getState().signOut()}
-          testID="sign-out"
-        />
       </View>
     </Screen>
   );
@@ -167,5 +156,4 @@ const styles = StyleSheet.create({
   pressed: { backgroundColor: color.bg.raised },
   flex: { flex: 1 },
   margin: { paddingHorizontal: layout.screenMargin },
-  account: { gap: spacing.xs, alignItems: 'flex-start' },
 });
