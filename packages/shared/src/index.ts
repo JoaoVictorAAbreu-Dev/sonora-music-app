@@ -4,3 +4,4 @@ export * from './common-passwords';
 export * from './errors';
 export * from './health';
 export * from './history';
+export * from './library';
