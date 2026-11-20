@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sonora · Política de privacidade</title>
+    <style>
+      /* Colors from packages/tokens (dark theme). */
+      :root { color-scheme: dark; }
+      body {
+        margin: 0;
+        background: #1b1d23;
+        color: #fffbea;
+        font: 17px/24px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main { max-width: 680px; margin: 0 auto; padding: 32px 16px 64px; }
+      h1 { font-size: 28px; line-height: 34px; }
+      h2 { font-size: 22px; line-height: 28px; margin-top: 32px; }
+      p, li { color: #aba89e; }
+      a { color: #efe7ba; }
+      .draft {
+        border: 2px solid #f0d576;
+        border-radius: 14px;
+        padding: 12px 16px;
+        color: #fffbea;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Política de privacidade do Sonora</h1>
+      <p class="draft">
+        <strong>Rascunho para revisão.</strong> Este texto descreve o que o aplicativo faz hoje,
+        mas ainda não foi revisado juridicamente. Antes da publicação nas lojas, ele precisa ser
+        aprovado e completado com o responsável pelo tratamento e o contato oficial.
+      </p>
+
+      <h2>Quais dados guardamos</h2>
+      <ul>
+        <li>E-mail e um resumo criptográfico (hash argon2id) da sua senha — nunca a senha em si.</li>
+        <li>Nome de exibição, se você informar.</li>
+        <li>A data em que você aceitou os Termos e esta Política.</li>
+        <li>Músicas favoritas, playlists e o histórico do que você ouviu.</li>
+        <li>
+          Sessões de login: um identificador aleatório guardado apenas como hash, o tipo de
+          aparelho (iOS ou Android) e a data de expiração.
+        </li>
+      </ul>
+
+      <h2>O que fica só no seu aparelho</h2>
+      <ul>
+        <li>O token de sessão, no armazenamento seguro do sistema (Keychain / Keystore).</li>
+        <li>Suas buscas recentes e as preferências de Configurações.</li>
+      </ul>
+
+      <h2>Para que usamos</h2>
+      <p>
+        Para manter você conectado, mostrar sua biblioteca e o que tocou recentemente. Não
+        vendemos dados e não usamos publicidade nem rastreadores de terceiros no aplicativo.
+      </p>
+
+      <h2>Catálogo de músicas</h2>
+      <p>
+        As músicas vêm do Jamendo, sob licenças Creative Commons. As buscas e reproduções passam
+        pelo nosso servidor, que consulta o Jamendo em seu nome; o áudio é baixado diretamente do
+        Jamendo ao tocar uma faixa.
+      </p>
+
+      <h2>Registros técnicos</h2>
+      <p>
+        O servidor registra eventos técnicos (rota acessada, tempo de resposta, erros) para manter o
+        serviço funcionando. Senhas e tokens nunca são registrados. Para limitar abusos, o endereço
+        IP é usado em memória por alguns minutos.
+      </p>
+
+      <h2>Excluir sua conta</h2>
+      <p>
+        Em Biblioteca › Configurações › Excluir minha conta. A exclusão é imediata e apaga seu
+        cadastro, favoritos, playlists, histórico e sessões. Cópias de segurança do banco de dados
+        são apagadas conforme o prazo de retenção definido para os backups.
+      </p>
+
+      <h2>Contato</h2>
+      <p>[A definir antes da publicação.]</p>
+    </main>
+  </body>
+</html>

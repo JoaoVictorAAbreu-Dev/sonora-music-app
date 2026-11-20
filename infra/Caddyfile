@@ -12,11 +12,23 @@
 		-Server
 	}
 
-	reverse_proxy api:3000 {
-		health_uri /health
-		health_interval 10s
+	# Static legal pages (privacy policy). Everything else goes to the API.
+	handle /privacy {
+		root * /srv/site
+		rewrite * /privacy.html
+		header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'"
+		file_server
 	}
 
+	handle {
+		reverse_proxy api:3000 {
+			health_uri /health
+			health_interval 10s
+		}
+	}
+
+	# JSON access logs. Caddy redacts Authorization and Cookie headers by default
+	# (log_credentials is off), so tokens never reach these logs.
 	log {
 		output stdout
 		format json

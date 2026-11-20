@@ -14,6 +14,22 @@ One Compute Engine VM runs three containers with Docker Compose:
 4. `docker compose --env-file .env up -d` (builds the API image locally until the M8 deploy workflow pushes images).
 5. Check: `curl https://$API_DOMAIN/health` → `{"status":"ok",...}`.
 
+## Privacy policy
+
+`site/privacy.html` is served by Caddy at `https://$API_DOMAIN/privacy` (the app links to it from
+Configurações). It is a **factual draft** of what the code does; it must be reviewed and completed
+(controller, contact) before store submission — open question Q16.
+
+## Monitoring
+
+- `GET /health` returns `200 {"status":"ok"}` when the API and PostgreSQL answer, `503` otherwise.
+- `./healthcheck.sh https://$API_DOMAIN` exits 0/1 for cron on another machine; or create a hosted
+  uptime check (for example Cloud Monitoring) on the same URL expecting status 200 and the text
+  `"status":"ok"` every 1–5 minutes, alerting by e-mail.
+- Logs are JSON on stdout (`docker compose logs api caddy`). The API redacts passwords, tokens and
+  `Authorization`; Caddy does not log credential headers. Verified locally on 2026-11-20 by sending
+  a bearer token and searching both logs (0 matches).
+
 ## Backups
 
 `backup.sh` runs `pg_dump -Fc` inside the postgres container and uploads the dump to
