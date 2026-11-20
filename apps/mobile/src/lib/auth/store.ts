@@ -14,6 +14,8 @@ export interface AuthState {
   user: User | null;
   /** Kept in memory only; never persisted. */
   accessToken: string | null;
+  /** Epoch ms when the access token expires (null when unknown). */
+  accessTokenExpiresAt: number | null;
   bootstrap(): Promise<void>;
   signIn(body: Omit<LoginBody, 'device'>): Promise<void>;
   signUp(body: Omit<RegisterBody, 'device'>): Promise<void>;
@@ -22,7 +24,15 @@ export interface AuthState {
   refreshSession(): Promise<boolean>;
   /** Drops the local session without calling the API (refresh already failed). */
   expireSession(): void;
+  /**
+   * An access token valid for at least another minute, refreshing first if needed. Used where the
+   * request is made outside the API client (the audio player's stream request).
+   */
+  getFreshAccessToken(): Promise<string | null>;
 }
+
+/** Refresh this long before expiry so a request never leaves with an expiring token. */
+const EXPIRY_MARGIN_MS = 60_000;
 
 /** Codes meaning the stored refresh token can never work again. */
 const SESSION_GONE = new Set(['UNAUTHORIZED', 'TOKEN_EXPIRED', 'TOKEN_REUSED']);
@@ -41,11 +51,16 @@ export function createAuthStore(deps: {
     async function adopt(user: User, tokens: TokenPair) {
       await storage.setRefreshToken(tokens.refreshToken);
       await storage.setUser(user);
-      set({ status: 'signedIn', user, accessToken: tokens.accessToken });
+      set({
+        status: 'signedIn',
+        user,
+        accessToken: tokens.accessToken,
+        accessTokenExpiresAt: Date.parse(tokens.accessTokenExpiresAt),
+      });
     }
 
     async function clearLocal() {
-      set({ status: 'signedOut', user: null, accessToken: null });
+      set({ status: 'signedOut', user: null, accessToken: null, accessTokenExpiresAt: null });
       deps.onSignedOut?.();
       await storage.clear().catch(() => undefined);
     }
@@ -54,6 +69,7 @@ export function createAuthStore(deps: {
       status: 'bootstrapping',
       user: null,
       accessToken: null,
+      accessTokenExpiresAt: null,
 
       async bootstrap() {
         const [refreshToken, cachedUser] = await Promise.all([
@@ -105,7 +121,10 @@ export function createAuthStore(deps: {
         try {
           const { tokens } = await api.refresh(refreshToken);
           await storage.setRefreshToken(tokens.refreshToken);
-          set({ accessToken: tokens.accessToken });
+          set({
+            accessToken: tokens.accessToken,
+            accessTokenExpiresAt: Date.parse(tokens.accessTokenExpiresAt),
+          });
           return true;
         } catch (err) {
           if (err instanceof ApiRequestError && SESSION_GONE.has(err.code)) {
@@ -118,6 +137,17 @@ export function createAuthStore(deps: {
 
       expireSession() {
         void clearLocal();
+      },
+
+      async getFreshAccessToken() {
+        const { accessToken, accessTokenExpiresAt, status } = get();
+        if (status !== 'signedIn') return null;
+        const fresh =
+          accessToken &&
+          accessTokenExpiresAt &&
+          accessTokenExpiresAt - Date.now() > EXPIRY_MARGIN_MS;
+        if (fresh) return accessToken;
+        return (await get().refreshSession()) ? get().accessToken : null;
       },
     };
   });
