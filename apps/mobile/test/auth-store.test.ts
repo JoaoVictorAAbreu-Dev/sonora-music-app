@@ -28,6 +28,7 @@ function fakeApi(overrides: Partial<Record<keyof AuthApi, jest.Mock>> = {}) {
   return {
     register: jest.fn(async () => ({ user, tokens: tokens(1) })),
     login: jest.fn(async () => ({ user, tokens: tokens(1) })),
+    social: jest.fn(async () => ({ user, tokens: tokens(1) })),
     refresh: jest.fn(async () => ({ tokens: tokens(2) })),
     logout: jest.fn(async () => undefined),
     me: jest.fn(async () => ({ user })),
@@ -54,6 +55,17 @@ describe('auth store', () => {
     const { storage } = memoryStorage();
     const store = createAuthStore({ api: fakeApi(), storage });
     await store.getState().signUp({ email: user.email, password: 'pw', acceptTerms: true });
+    expect(store.getState().status).toBe('signedIn');
+  });
+
+  it('signs in with a provider ID token (M6)', async () => {
+    const { storage } = memoryStorage();
+    const api = fakeApi();
+    const store = createAuthStore({ api, storage });
+    await store.getState().signInWithProvider({ provider: 'apple', idToken: 'x'.repeat(40) });
+    expect(api.social).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'apple', device: expect.any(String) }),
+    );
     expect(store.getState().status).toBe('signedIn');
   });
 
