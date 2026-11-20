@@ -34,6 +34,16 @@ const envSchema = z.object({
   AUTH_RATE_LIMIT_PER_IP: z.coerce.number().int().positive().default(30),
   /** Login/register attempts per email per 15 minutes. */
   AUTH_RATE_LIMIT_PER_EMAIL: z.coerce.number().int().positive().default(10),
+  /**
+   * Jamendo API client id. Only the API uses it; it never reaches the app. Empty = catalog routes
+   * answer UPSTREAM_UNAVAILABLE (useful for local work without credentials).
+   */
+  JAMENDO_CLIENT_ID: z.string().default(''),
+  JAMENDO_BASE_URL: z.url().default('https://api.jamendo.com/v3.0'),
+  /** Timeout for each Jamendo request, in milliseconds. */
+  JAMENDO_TIMEOUT_MS: z.coerce.number().int().min(500).max(30_000).default(5000),
+  /** Catalog requests per signed-in user per minute. */
+  CATALOG_RATE_LIMIT_PER_USER: z.coerce.number().int().positive().default(120),
   /** Number of reverse proxies in front of the API (Caddy = 1) so client IPs are correct. */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
 });
