@@ -1,5 +1,6 @@
 import { useStore } from 'zustand';
 import { API_URL } from '@/lib/config';
+import { recordPlay } from './history-api';
 import { authStore, onSignedOut } from '@/lib/auth/store';
 import { rntpEngine, subscribeEngineEvents } from './rntp-engine';
 import { createPlayerStore, type PlayerState } from './store';
@@ -9,6 +10,7 @@ export const playerStore = createPlayerStore({
   engine: rntpEngine,
   streamUrl: (path) => `${API_URL}${path}`,
   getAccessToken: () => authStore.getState().getFreshAccessToken(),
+  reportPlay: recordPlay,
 });
 
 let unsubscribe: (() => void) | null = null;
@@ -19,6 +21,7 @@ export function connectPlayer() {
     onState: (s) => playerStore.getState().onEngineState(s),
     onError: (m) => playerStore.getState().onEngineError(m),
     onEnded: () => void playerStore.getState().onTrackEnded(),
+    onProgress: (p) => playerStore.getState().onProgress(p),
   });
   return () => {
     unsubscribe?.();

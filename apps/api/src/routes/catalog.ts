@@ -10,7 +10,6 @@ import {
   homeResponseSchema,
   searchQuerySchema,
   searchResponseSchema,
-  trackSchema,
   type HomeResponse,
   type SearchResponse,
 } from '@sonora/shared';
@@ -19,6 +18,7 @@ import { currentUserId, requireAuth } from '../auth/guard';
 import type { AccessTokenIssuer } from '../auth/tokens';
 import { cacheKey, cached } from '../catalog/cache';
 import type { JamendoClient } from '../catalog/jamendo';
+import { resolveTracks, trackLoader } from '../catalog/tracks';
 import type { Db } from '../db/client';
 import { playHistory } from '../db/schema';
 import { AppError, parse } from '../errors';
@@ -48,8 +48,7 @@ export async function catalogRoutes(app: FastifyInstance, deps: CatalogDeps) {
     }
   });
 
-  const getTrack = (id: string) =>
-    cached(db, 'track', cacheKey('track', id), trackSchema.nullable(), () => jamendo.track(id));
+  const getTrack = trackLoader(db, jamendo);
 
   app.get('/search', async (req) => {
     const q = parse(searchQuerySchema, req.query);
@@ -151,7 +150,13 @@ export async function catalogRoutes(app: FastifyInstance, deps: CatalogDeps) {
       .groupBy(playHistory.jamendoTrackId)
       .orderBy(desc(max(playHistory.playedAt)))
       .limit(HOME_SECTION_SIZE);
-    const settled = await Promise.allSettled(recent.map((r) => getTrack(r.id)));
-    return settled.flatMap((s) => (s.status === 'fulfilled' && s.value ? [s.value] : []));
+    const tracks = await resolveTracks(
+      getTrack,
+      recent.map((r) => r.id),
+    );
+    return recent.flatMap((r) => {
+      const t = tracks.get(r.id);
+      return t ? [t] : [];
+    });
   }
 }

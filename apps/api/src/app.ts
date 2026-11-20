@@ -10,6 +10,7 @@ import { registerErrorHandlers } from './errors';
 import { authRoutes } from './routes/auth';
 import { catalogRoutes } from './routes/catalog';
 import { healthRoutes } from './routes/health';
+import { historyRoutes } from './routes/history';
 import { meRoutes } from './routes/me';
 
 /** Paths pino must never print. Bodies are not logged at all; this is defense in depth. */
@@ -71,6 +72,12 @@ export async function buildApp(
 
   const accessTokens = createAccessTokens(config.JWT_SECRET, config.ACCESS_TOKEN_TTL);
   const sessionDeps = { db, accessTokens, refreshTtlSeconds: config.REFRESH_TOKEN_TTL };
+  const jamendo = createJamendoClient({
+    clientId: config.JAMENDO_CLIENT_ID,
+    baseUrl: config.JAMENDO_BASE_URL,
+    timeoutMs: config.JAMENDO_TIMEOUT_MS,
+    ...(options.jamendoFetch ? { fetchImpl: options.jamendoFetch } : {}),
+  });
   await app.register(
     (v1, _opts, done) => {
       void v1.register(authRoutes, {
@@ -83,14 +90,10 @@ export async function buildApp(
       void v1.register(catalogRoutes, {
         db,
         accessTokens,
-        jamendo: createJamendoClient({
-          clientId: config.JAMENDO_CLIENT_ID,
-          baseUrl: config.JAMENDO_BASE_URL,
-          timeoutMs: config.JAMENDO_TIMEOUT_MS,
-          ...(options.jamendoFetch ? { fetchImpl: options.jamendoFetch } : {}),
-        }),
+        jamendo,
         userLimiter: new AttemptLimiter(config.CATALOG_RATE_LIMIT_PER_USER, 60_000),
       });
+      void v1.register(historyRoutes, { db, accessTokens, jamendo });
       done();
     },
     { prefix: '/v1' },
