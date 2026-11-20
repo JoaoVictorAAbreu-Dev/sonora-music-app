@@ -72,6 +72,9 @@ export default function RootLayout() {
             <Stack.Screen name="library/favorites" options={push} />
             <Stack.Screen name="library/history" options={push} />
             <Stack.Screen name="settings" options={push} />
+            <Stack.Screen name="profile" options={push} />
+            <Stack.Screen name="about/index" options={push} />
+            <Stack.Screen name="about/open-source" options={push} />
             <Stack.Screen name="playlist/[id]" options={push} />
             <Stack.Screen name="album/[id]" options={push} />
             <Stack.Screen name="artist/[id]" options={push} />
