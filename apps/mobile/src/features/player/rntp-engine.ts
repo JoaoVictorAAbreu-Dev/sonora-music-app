@@ -2,6 +2,7 @@ import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
   Event,
+  IOSCategory,
   State,
   useProgress,
 } from 'react-native-track-player';
@@ -16,7 +17,11 @@ let setupPromise: Promise<void> | null = null;
 export const rntpEngine: PlayerEngine = {
   setup() {
     setupPromise ??= (async () => {
-      await TrackPlayer.setupPlayer({ autoHandleInterruptions: true });
+      // Playback category keeps audio going in the background and with the silent switch on.
+      await TrackPlayer.setupPlayer({
+        autoHandleInterruptions: true,
+        iosCategory: IOSCategory.Playback,
+      });
       await TrackPlayer.updateOptions({
         capabilities: [
           Capability.Play,
@@ -87,6 +92,7 @@ export function subscribeEngineEvents(handlers: {
   onState(state: EngineState): void;
   onError(message: string): void;
   onEnded(): void;
+  onProgress(positionSeconds: number): void;
 }) {
   const subs = [
     TrackPlayer.addEventListener(Event.PlaybackState, (e) =>
@@ -94,6 +100,9 @@ export function subscribeEngineEvents(handlers: {
     ),
     TrackPlayer.addEventListener(Event.PlaybackError, (e) => handlers.onError(e.message)),
     TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => handlers.onEnded()),
+    TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (e) =>
+      handlers.onProgress(e.position),
+    ),
   ];
   return () => subs.forEach((s) => s.remove());
 }

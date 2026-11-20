@@ -42,7 +42,8 @@ jest.mock('react-native-track-player', () => {
     useProgress: jest.fn(() => ({ position: 84, duration: 221, buffered: 100 })),
     Capability: {},
     AppKilledPlaybackBehavior: {},
-    Event: {},
+    Event: { PlaybackProgressUpdated: 'playback-progress-updated' },
+    IOSCategory: { Playback: 'playback' },
     State: {
       None: 'none',
       Ready: 'ready',

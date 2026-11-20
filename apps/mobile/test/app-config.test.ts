@@ -14,4 +14,8 @@ describe('app.json', () => {
   });
 
   it('is dark only', () => expect(appJson.expo.userInterfaceStyle).toBe('dark'));
+
+  it('keeps audio playing in the background on iOS', () => {
+    expect(appJson.expo.ios.infoPlist.UIBackgroundModes).toContain('audio');
+  });
 });
