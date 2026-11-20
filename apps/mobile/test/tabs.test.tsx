@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import TabsLayout from '../src/app/(tabs)/_layout';
 import HomeScreen from '../src/app/(tabs)/home';
@@ -12,7 +13,12 @@ function renderTabs() {
       '(tabs)/search': SearchScreen,
       '(tabs)/library': LibraryScreen,
     },
-    { initialUrl: '/home' },
+    {
+      initialUrl: '/home',
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+      ),
+    },
   );
 }
 
