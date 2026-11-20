@@ -14,6 +14,25 @@ One Compute Engine VM runs three containers with Docker Compose:
 4. `docker compose --env-file .env up -d` (builds the API image locally until the M8 deploy workflow pushes images).
 5. Check: `curl https://$API_DOMAIN/health` → `{"status":"ok",...}`.
 
+## Deploy (GitHub Actions, manual)
+
+`.github/workflows/deploy.yml` runs only from **Actions › Deploy API › Run workflow**. It runs the full
+CI, builds the API image, pushes it to GitHub Container Registry (`ghcr.io/<owner>/sonora-api:<sha>`),
+copies `infra/` to `/opt/sonora/infra` on the VM (never `.env` or `backups/`), pulls the image,
+restarts with `docker compose up -d` and waits for `/health`. **It has never been run.**
+
+Repository secrets (Settings › Secrets and variables › Actions) — values only you have:
+
+| Secret               | What                                                     |
+| -------------------- | -------------------------------------------------------- |
+| `DEPLOY_HOST`        | VM address                                               |
+| `DEPLOY_USER`        | SSH user on the VM (in the `docker` group)               |
+| `DEPLOY_SSH_KEY`     | Private key (ed25519) authorized for that user           |
+| `DEPLOY_KNOWN_HOSTS` | Output of `ssh-keyscan <host>` (pins the VM key)         |
+| `API_DOMAIN`         | Public API domain, used for the post-deploy health check |
+
+Also create a `production` environment with required reviewers so each deploy needs approval.
+
 ## Privacy policy
 
 `site/privacy.html` is served by Caddy at `https://$API_DOMAIN/privacy` (the app links to it from

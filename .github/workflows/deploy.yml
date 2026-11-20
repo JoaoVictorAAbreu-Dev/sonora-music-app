@@ -1,0 +1,100 @@
+# Deploys the API to the Compute Engine VM. Manual only: Actions › Deploy API › Run workflow.
+# Not triggered by pushes. Requires the secrets listed in infra/README.md (section "Deploy").
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy
+        required: true
+        default: main
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/sonora-api
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run ci
+
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - id: meta
+        run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Configure required reviewers for this environment in the repository settings.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+      - name: Copy infra files (never .env or backups)
+        run: |
+          rsync -az --delete --exclude '.env' --exclude 'backups/' \
+            infra/ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/sonora/infra/"
+      - name: Pull the image and restart
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && \
+             cd /opt/sonora/infra && \
+             API_IMAGE='${{ env.IMAGE }}:${TAG}' APP_VERSION='${TAG}' docker compose --env-file .env pull api && \
+             API_IMAGE='${{ env.IMAGE }}:${TAG}' APP_VERSION='${TAG}' docker compose --env-file .env up -d && \
+             docker logout ghcr.io"
+      - name: Check /health
+        run: |
+          for i in $(seq 1 30); do
+            ./infra/healthcheck.sh "https://${{ secrets.API_DOMAIN }}" && exit 0
+            sleep 5
+          done
+          exit 1

@@ -73,6 +73,13 @@ Radius, Motion; text styles; `glass/regular`). `packages/tokens/src/figma-variab
 `packages/tokens/test/drift.test.ts` fails if code and snapshot disagree. The app never hard-codes colors,
 spacing, radii or durations (ESLint blocks color literals in `apps/mobile`).
 
+## Builds (EAS)
+
+`apps/mobile/eas.json` has `development` (dev client), `preview` (internal) and `production`
+profiles. Set `EXPO_PUBLIC_API_URL` per profile as an EAS environment variable, and the iOS
+bundle identifier / Android package in `app.json` (open question Q7) before the first build.
+Builds run on Expo's servers under your account; nothing has been built yet.
+
 ## Deploy and backups
 
 See [infra/README.md](infra/README.md). Nothing is deployed automatically.
