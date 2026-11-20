@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { ScrollView, StyleSheet, type RefreshControlProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { OfflineBanner } from '@/features/network';
 import { usePlayer } from '@/features/player';
 import { color, layout, spacing } from '@/theme';
 
@@ -36,6 +37,7 @@ export function Screen({
         gap: spacing.xl,
       }}
     >
+      <OfflineBanner />
       {children}
     </ScrollView>
   );

@@ -58,4 +58,9 @@ jest.mock('react-native-track-player', () => {
   };
 });
 
+jest.mock('expo-network', () => ({
+  getNetworkStateAsync: jest.fn(async () => ({ isConnected: true, isInternetReachable: true })),
+  addNetworkStateListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
 require('react-native-reanimated').setUpTests();

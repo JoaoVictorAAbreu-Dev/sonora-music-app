@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query';
 import { connectPlayer } from '@/features/player';
+import { connectNetwork } from '@/features/network';
 import { TrackActionsHost } from '@/features/library/track-actions';
 import { ToastHost } from '@/features/ui/toast';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
@@ -15,6 +16,9 @@ import { authStore, onSignedOut, useAuth } from '@/lib/auth/store';
 import { color, interFamilies } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
+
+/** Any screen that throws while rendering falls back to this instead of a blank app. */
+export { ErrorScreen as ErrorBoundary } from '@/features/ui/ErrorScreen';
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -30,6 +34,7 @@ export default function RootLayout() {
   useEffect(() => {
     void authStore.getState().bootstrap();
     const disconnectPlayer = connectPlayer();
+    connectNetwork();
     // Another user may sign in next: drop everything cached for this one.
     const offSignedOut = onSignedOut(() => queryClient.clear());
     return () => {
