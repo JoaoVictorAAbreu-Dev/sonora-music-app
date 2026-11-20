@@ -56,9 +56,9 @@ Board: https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/milestones
 
 ## Backlog
 
-- [ ] [#32](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/32) [BL-01] Auth: Login social com Google e Apple (M6)
-- [ ] [#33](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/33) [BL-02] Auth: Recuperação de senha (T04)
-- [ ] [#34](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/34) [BL-03] App: Telas Artista, Álbum, Perfil e Sobre (T08, T09, T17 e T19)
+- [ ] [#32](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/32) [BL-01] Auth: Login social com Google e Apple (M6) — API pronta; falta SDK nativo e credenciais (Q7)
+- [ ] [#33](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/33) [BL-02] Auth: Recuperação de senha (T04) — pronta; falta provedor de e-mail (Q14)
+- [x] [#34](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/34) [BL-03] App: Telas Artista, Álbum, Perfil e Sobre (T08, T09, T17 e T19)
 - [ ] [#35](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/35) [BL-04] Infra: Deploy em produção, backup e teste de restore no GCP
 - [ ] [#36](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/36) [BL-05] QA: Executar fluxo Maestro e checklist em dispositivo real
 - [ ] [#37](https://github.com/JoaoVictorAAbreu-Dev/sonora-music-app/issues/37) [BL-06] Docs: Incluir docs 04/05 e validar licença do Jamendo

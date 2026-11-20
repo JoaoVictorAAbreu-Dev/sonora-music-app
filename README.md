@@ -14,7 +14,8 @@ que cuida de contas, biblioteca e do acesso ao catálogo.
 
 **O que dá para fazer**
 
-- Criar conta com e-mail e senha e continuar conectado entre aberturas do app.
+- Criar conta com e-mail e senha, continuar conectado entre aberturas do app e recuperar a senha
+  por e-mail.
 - Descobrir músicas no **Início** ("Continuar ouvindo", "Feito para você", "Populares").
 - **Buscar** por música, artista ou álbum, com buscas recentes e filtros.
 - Abrir páginas de **artista** e de **álbum** e tocar tudo com um toque.
@@ -153,6 +154,9 @@ Todas as rotas `/v1` exceto as de autenticação exigem `Authorization: Bearer <
 | POST   | `/v1/auth/login`                     | Entra → usuário + tokens                                   |
 | POST   | `/v1/auth/refresh`                   | Troca o refresh token (reuso revoga a sessão)              |
 | POST   | `/v1/auth/logout`                    | Encerra a sessão                                           |
+| POST   | `/v1/auth/social`                    | Entra com Google ou Apple (ID token verificado na API)     |
+| POST   | `/v1/auth/password/forgot`           | Envia link de redefinição (sempre 202)                     |
+| POST   | `/v1/auth/password/reset`            | Define nova senha com o token do link e encerra as sessões |
 | GET    | `/v1/me`                             | Usuário atual                                              |
 | PATCH  | `/v1/me`                             | Altera o nome de exibição                                  |
 | DELETE | `/v1/me`                             | Exclui a conta e todos os dados                            |
