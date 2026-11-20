@@ -11,6 +11,7 @@ import { authRoutes } from './routes/auth';
 import { catalogRoutes } from './routes/catalog';
 import { healthRoutes } from './routes/health';
 import { historyRoutes } from './routes/history';
+import { libraryRoutes } from './routes/library';
 import { meRoutes } from './routes/me';
 
 /** Paths pino must never print. Bodies are not logged at all; this is defense in depth. */
@@ -94,6 +95,7 @@ export async function buildApp(
         userLimiter: new AttemptLimiter(config.CATALOG_RATE_LIMIT_PER_USER, 60_000),
       });
       void v1.register(historyRoutes, { db, accessTokens, jamendo });
+      void v1.register(libraryRoutes, { db, accessTokens, jamendo });
       done();
     },
     { prefix: '/v1' },
