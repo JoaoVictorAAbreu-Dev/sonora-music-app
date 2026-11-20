@@ -12,6 +12,8 @@ import { SeekBar } from '@/components/player/SeekBar';
 import { color, duration, layout, radius, spacing } from '@/theme';
 import { bezier } from '@/lib/motion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FavoriteButton } from '@/features/library/FavoriteButton';
+import { openTrackOptions } from '@/features/library/track-actions';
 import { formatTime, spokenTime } from './format';
 import { playerStore, usePlayer } from './index';
 import { JUMP_SECONDS, usePlaybackProgress } from './rntp-engine';
@@ -54,7 +56,16 @@ export function PlayerScreen() {
         <Text variant="caption" tone="secondary" accessibilityRole="header">
           Tocando agora
         </Text>
-        <View style={styles.headerSpacer} />
+        {track ? (
+          <IconButton
+            icon="more"
+            label="Mais opções"
+            onPress={() => openTrackOptions(track)}
+            testID="player-more"
+          />
+        ) : (
+          <View style={styles.headerSpacer} />
+        )}
       </View>
 
       {/* Cover cross-fades when the track changes (Reanimated skips it with Reduce Motion). */}
@@ -79,13 +90,16 @@ export function PlayerScreen() {
           </View>
         </SkeletonPulse>
       ) : (
-        <View style={styles.titles}>
-          <Text variant="title" numberOfLines={2} testID="player-title">
-            {track.title}
-          </Text>
-          <Text tone="secondary" numberOfLines={1}>
-            {track.artist.name}
-          </Text>
+        <View style={styles.titleRow}>
+          <View style={styles.titles}>
+            <Text variant="title" numberOfLines={2} testID="player-title">
+              {track.title}
+            </Text>
+            <Text tone="secondary" numberOfLines={1}>
+              {track.artist.name}
+            </Text>
+          </View>
+          <FavoriteButton trackId={track.id} title={track.title} testID="player-favorite" />
         </View>
       )}
 
@@ -236,7 +250,8 @@ const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerSpacer: { width: layout.iconSize },
-  titles: { gap: layout.iconLabelGap },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  titles: { flex: 1, gap: layout.iconLabelGap },
   titleSkeleton: { gap: spacing.sm },
   progress: { gap: spacing.xs + layout.iconLabelGap },
   times: { flexDirection: 'row', justifyContent: 'space-between' },

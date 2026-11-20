@@ -2,7 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { color, layout, opacity, radius, spacing } from '@/theme';
 import { Text } from './Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'text';
+export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'destructive';
 
 export interface ButtonProps {
   label: string;
@@ -18,6 +18,7 @@ const tone = {
   primary: { bg: color.action.primary, pressed: color.action.pressed, text: color.text.onAction },
   secondary: { bg: undefined, pressed: color.bg.raised, text: color.text.primary },
   text: { bg: undefined, pressed: color.bg.raised, text: color.text.highlight },
+  destructive: { bg: undefined, pressed: color.bg.raised, text: color.state.error },
 } as const;
 
 /** "Botão" from Figma: pill, 48 pt min height, Primário / Secundário / Texto, with Carregando. */
@@ -45,6 +46,7 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         variant === 'secondary' && styles.outlined,
+        variant === 'destructive' && styles.destructive,
         { backgroundColor: disabledPrimary ? color.bg.overlay : pressed ? t.pressed : t.bg },
         disabled && variant !== 'primary' && styles.disabled,
       ]}
@@ -73,6 +75,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   outlined: { borderWidth: layout.borderControl, borderColor: color.border.control },
+  destructive: { borderWidth: layout.borderControl, borderColor: color.state.error },
   disabled: { opacity: opacity.disabled },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
 });

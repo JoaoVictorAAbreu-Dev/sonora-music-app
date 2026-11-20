@@ -1,6 +1,7 @@
 import { HomeContent } from '@/features/catalog/HomeContent';
 import { useHome } from '@/features/catalog/api';
 import { playerStore } from '@/features/player';
+import { openTrackOptions } from '@/features/library/track-actions';
 
 /** T05 Início. */
 export default function HomeScreen() {
@@ -13,6 +14,7 @@ export default function HomeScreen() {
       refreshing={home.isRefetching}
       onRefresh={() => void home.refetch()}
       onPlay={(track, list) => void playerStore.getState().playList(list, list.indexOf(track))}
+      onMore={openTrackOptions}
     />
   );
 }

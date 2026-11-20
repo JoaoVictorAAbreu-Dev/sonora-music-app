@@ -45,6 +45,8 @@ export const opacity = {
   /** Skeleton pulse lower bound (100% ↔ 50%) and the static value with Reduce Motion (70%). */
   skeletonLow: 0.5,
   skeletonStatic: 0.7,
+  /** Dim layer behind dialogs and sheets (T20 "Escurecimento": black 60%). */
+  scrim: 0.6,
 } as const;
 
 /** Cubic-bezier control points [x1, y1, x2, y2]; `linear` is the identity curve. */
@@ -124,6 +126,14 @@ export const layout = {
   transportIconSize: 32,
   toggleIconSize: 28,
   progressTrackHeight: 4,
+  /** Library (T10/T15/T20). */
+  playlistCoverSize: 176,
+  sheetHandleWidth: 36,
+  favoriteIconSize: 28,
+  /** Favorite "pop": 28 → 34 pt peak (Figma 09). */
+  favoritePopScale: 34 / 28,
+  /** Toast stays visible this long in the app (Figma 09: 4 s). */
+  toastVisibleMs: 4000,
   focusRingWidth: 2,
   maxFontScale: 2,
 } as const;

@@ -25,6 +25,7 @@ export interface HomeContentProps {
   refreshing: boolean;
   onRefresh(): void;
   onPlay?(track: Track, list: Track[]): void;
+  onMore?(track: Track): void;
 }
 
 /** T05 Início: greeting, "Continuar ouvindo", "Feito para você" and "Populares". */
@@ -35,6 +36,7 @@ export function HomeContent({
   refreshing,
   onRefresh,
   onPlay,
+  onMore,
 }: HomeContentProps) {
   return (
     <Screen
@@ -111,6 +113,7 @@ export function HomeContent({
                     track={t}
                     testID={`track-${t.id}`}
                     onPress={onPlay ? () => onPlay(t, data.popular) : undefined}
+                    onMore={onMore ? () => onMore(t) : undefined}
                   />
                 ))}
               </View>

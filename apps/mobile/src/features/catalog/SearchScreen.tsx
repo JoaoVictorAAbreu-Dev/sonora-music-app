@@ -51,7 +51,13 @@ export function isEmptyResult(r: SearchResponse): boolean {
 }
 
 /** T06 Buscar: initial, typing, loading (skeleton), results, empty and error. */
-export function SearchScreen({ onPlay }: { onPlay?: (track: Track, list: Track[]) => void }) {
+export function SearchScreen({
+  onPlay,
+  onMore,
+}: {
+  onPlay?: (track: Track, list: Track[]) => void;
+  onMore?: (track: Track) => void;
+}) {
   const [text, setText] = useState('');
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SearchType>('all');
@@ -224,7 +230,13 @@ export function SearchScreen({ onPlay }: { onPlay?: (track: Track, list: Track[]
         ) : null}
 
         {mode === 'results' && search.data ? (
-          <Results data={search.data} filter={filter} onFilter={setFilter} onPlay={onPlay} />
+          <Results
+            data={search.data}
+            filter={filter}
+            onFilter={setFilter}
+            onPlay={onPlay}
+            onMore={onMore}
+          />
         ) : null}
       </Animated.View>
     </Screen>
@@ -236,11 +248,13 @@ function Results({
   filter,
   onFilter,
   onPlay,
+  onMore,
 }: {
   data: SearchResponse;
   filter: SearchType;
   onFilter: (f: SearchType) => void;
   onPlay?: (track: Track, list: Track[]) => void;
+  onMore?: (track: Track) => void;
 }) {
   const rows = (tracks: Track[]) =>
     tracks.map((t) => (
@@ -249,6 +263,7 @@ function Results({
         track={t}
         testID={`result-track-${t.id}`}
         onPress={onPlay ? () => onPlay(t, data.tracks) : undefined}
+        onMore={onMore ? () => onMore(t) : undefined}
       />
     ));
 
