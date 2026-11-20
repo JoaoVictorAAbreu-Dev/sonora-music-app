@@ -1,14 +1,16 @@
-import { Screen } from '@/components/Screen';
-import { Text } from '@/components/Text';
+import { HomeContent } from '@/features/catalog/HomeContent';
+import { useHome } from '@/features/catalog/api';
 
-/** M1 shell; real content arrives in later milestones. */
-export default function IndexScreen() {
+/** T05 Início. */
+export default function HomeScreen() {
+  const home = useHome();
   return (
-    <Screen testID="screen-home">
-      <Text variant="display" accessibilityRole="header">
-        Início
-      </Text>
-      <Text tone="secondary">Sua música começa aqui.</Text>
-    </Screen>
+    <HomeContent
+      data={home.data}
+      status={home.status}
+      error={home.error}
+      refreshing={home.isRefetching}
+      onRefresh={() => void home.refetch()}
+    />
   );
 }
