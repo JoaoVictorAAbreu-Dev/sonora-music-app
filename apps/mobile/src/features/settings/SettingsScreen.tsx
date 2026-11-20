@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { LinkRow } from '@/components/LinkRow';
 import { PageHeader } from '@/components/PageHeader';
 import { SwitchRow } from '@/components/SwitchRow';
 import { Text } from '@/components/Text';
@@ -125,23 +126,6 @@ function Row({ children }: { children: React.ReactNode }) {
   return <View style={styles.rows}>{children}</View>;
 }
 
-function LinkRow({ label, onPress, testID }: { label: string; onPress(): void; testID?: string }) {
-  return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      style={({ pressed }) => [styles.link, pressed && styles.pressed]}
-    >
-      <Text style={styles.flex}>{label}</Text>
-      <Text variant="title" tone="secondary" importantForAccessibility="no">
-        ›
-      </Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.bg.base, gap: spacing.lg },
   section: {
@@ -151,15 +135,5 @@ const styles = StyleSheet.create({
   },
   rows: { paddingHorizontal: layout.screenMargin },
   note: { paddingHorizontal: layout.screenMargin, paddingTop: spacing.sm },
-  link: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: layout.fieldHeight,
-    paddingHorizontal: layout.screenMargin,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.border.hairline,
-  },
-  pressed: { backgroundColor: color.bg.raised },
-  flex: { flex: 1 },
   account: { gap: spacing.sm, padding: layout.screenMargin, paddingTop: spacing['2xl'] },
 });

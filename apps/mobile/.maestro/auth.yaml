@@ -43,11 +43,11 @@ appId: ${APP_ID}
 - tapOn:
     id: tab-library
 - tapOn:
-    id: library-settings
+    id: library-profile
 - assertVisible:
-    id: signed-in-as
+    id: profile-email
 - tapOn:
-    id: sign-out
+    id: profile-sign-out
 - extendedWaitUntil:
     visible:
       id: screen-welcome

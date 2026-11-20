@@ -142,7 +142,14 @@ export function AlbumScreen({ id }: { id: string }) {
             />
           )}
           {note ? (
-            <Text variant="caption" tone="secondary" style={styles.margin} testID="album-license">
+            <Text
+              variant="caption"
+              tone="secondary"
+              style={styles.margin}
+              accessibilityRole="link"
+              onPress={() => router.push('/about')}
+              testID="album-license"
+            >
               {note}
             </Text>
           ) : null}

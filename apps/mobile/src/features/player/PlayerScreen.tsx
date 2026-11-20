@@ -1,4 +1,4 @@
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Linking, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useMotion } from '@/hooks/useMotion';
 import { router } from 'expo-router';
@@ -12,6 +12,7 @@ import { PlayPauseButton } from '@/components/player/PlayPauseButton';
 import { SeekBar } from '@/components/player/SeekBar';
 import { color, duration, layout, radius, spacing } from '@/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { licenseName } from '@/features/catalog/license';
 import { FavoriteButton } from '@/features/library/FavoriteButton';
 import { openTrackOptions } from '@/features/library/track-actions';
 import { formatTime, spokenTime } from './format';
@@ -99,6 +100,20 @@ export function PlayerScreen() {
             <Text tone="secondary" numberOfLines={1}>
               {track.artist.name}
             </Text>
+            {track.licenseUrl ? (
+              <Text
+                variant="caption"
+                tone="tertiary"
+                accessibilityRole="link"
+                accessibilityHint="Abre a licença no navegador"
+                onPress={() => {
+                  if (track.licenseUrl) void Linking.openURL(track.licenseUrl);
+                }}
+                testID="player-license"
+              >
+                {`Licença ${licenseName(track.licenseUrl)}`}
+              </Text>
+            ) : null}
           </View>
           <FavoriteButton trackId={track.id} title={track.title} testID="player-favorite" />
         </View>

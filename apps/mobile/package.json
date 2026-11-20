@@ -44,7 +44,8 @@
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "doctor": "expo-doctor"
+    "doctor": "expo-doctor",
+    "licenses": "node scripts/generate-oss-licenses.mjs"
   },
   "private": true,
   "jest": {

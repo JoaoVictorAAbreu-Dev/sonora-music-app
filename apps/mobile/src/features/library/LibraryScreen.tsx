@@ -47,9 +47,10 @@ export function LibraryScreen() {
           testID="library-history"
         />
         <HubRow
-          label="Configurações"
-          onPress={() => router.push('/settings')}
-          testID="library-settings"
+          label="Perfil"
+          detail="Conta, configurações e licenças"
+          onPress={() => router.push('/profile')}
+          testID="library-profile"
         />
       </View>
 
