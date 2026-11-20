@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { renderWithQuery } from './render';
 import TrackPlayer from 'react-native-track-player';
 import { MiniPlayer } from '@/components/player/MiniPlayer';
 import { PlayerScreen } from '@/features/player/PlayerScreen';
@@ -77,7 +78,7 @@ describe('MiniPlayer (T11)', () => {
 describe('PlayerScreen (T12)', () => {
   it('shows the track, progress and accessible controls', async () => {
     await playing();
-    await render(<PlayerScreen />);
+    await renderWithQuery(<PlayerScreen />).view;
     expect(screen.getByTestId('player-title')).toHaveTextContent('Synthetic Track 1');
     expect(screen.getByText('1:24')).toBeTruthy();
     expect(screen.getByText('3:41')).toBeTruthy();
@@ -104,7 +105,7 @@ describe('PlayerScreen (T12)', () => {
 
   it('shows loading and buffering states', async () => {
     await playing('loading');
-    await render(<PlayerScreen />);
+    await renderWithQuery(<PlayerScreen />).view;
     expect(screen.getByText('Carregando faixa…')).toBeTruthy();
     expect(screen.getAllByText('–:––')).toHaveLength(2);
     playerStore.setState({ status: 'buffering' });
@@ -113,7 +114,7 @@ describe('PlayerScreen (T12)', () => {
 
   it('shows the playback error with a retry', async () => {
     await playing('error');
-    await render(<PlayerScreen />);
+    await renderWithQuery(<PlayerScreen />).view;
     expect(screen.getByText('Não foi possível reproduzir')).toBeTruthy();
     const loads = (TrackPlayer.load as jest.Mock).mock.calls.length;
     await fireEvent.press(screen.getByLabelText('Tentar de novo'));
