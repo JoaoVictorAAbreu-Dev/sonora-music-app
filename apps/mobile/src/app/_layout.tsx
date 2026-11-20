@@ -5,8 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/query';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
-import { authStore, useAuth } from '@/lib/auth/store';
+import { authStore, onSignedOut, useAuth } from '@/lib/auth/store';
 import { color, interFamilies } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -22,6 +24,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     void authStore.getState().bootstrap();
+    // Another user may sign in next: drop everything cached for this one.
+    return onSignedOut(() => queryClient.clear());
   }, []);
 
   const ready = (fontsLoaded || fontError) && status !== 'bootstrapping';
@@ -34,24 +38,26 @@ export default function RootLayout() {
 
   const signedIn = status === 'signedIn';
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: color.bg.base },
-          ...fadeThrough,
-        }}
-      >
-        <Stack.Screen name="index" />
-        {/* Route guards: signed-out users only reach (auth); signed-in users only reach (tabs). */}
-        <Stack.Protected guard={signedIn}>
-          <Stack.Screen name="(tabs)" />
-        </Stack.Protected>
-        <Stack.Protected guard={!signedIn}>
-          <Stack.Screen name="(auth)" />
-        </Stack.Protected>
-      </Stack>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: color.bg.base },
+            ...fadeThrough,
+          }}
+        >
+          <Stack.Screen name="index" />
+          {/* Route guards: signed-out users only reach (auth); signed-in users only reach (tabs). */}
+          <Stack.Protected guard={signedIn}>
+            <Stack.Screen name="(tabs)" />
+          </Stack.Protected>
+          <Stack.Protected guard={!signedIn}>
+            <Stack.Screen name="(auth)" />
+          </Stack.Protected>
+        </Stack>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

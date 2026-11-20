@@ -53,7 +53,8 @@ export function createApiClient(opts: {
   session: SessionHandlers;
   fetchImpl?: typeof fetch;
 }): ApiClient {
-  const doFetch = opts.fetchImpl ?? fetch;
+  // Resolved per call so tests (and polyfills) can replace the global fetch.
+  const doFetch: typeof fetch = (...args) => (opts.fetchImpl ?? globalThis.fetch)(...args);
   // A single refresh shared by every request that hits 401 while it is running.
   let inFlight: Promise<boolean> | null = null;
 

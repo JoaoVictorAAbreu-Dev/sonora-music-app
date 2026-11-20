@@ -32,6 +32,8 @@ const device = `${Platform.OS}`;
 export function createAuthStore(deps: {
   api: AuthApi;
   storage: TokenStorage;
+  /** Clears per-user caches (queries, player) when the session ends. */
+  onSignedOut?: () => void;
 }): StoreApi<AuthState> {
   const { api, storage } = deps;
 
@@ -44,6 +46,7 @@ export function createAuthStore(deps: {
 
     async function clearLocal() {
       set({ status: 'signedOut', user: null, accessToken: null });
+      deps.onSignedOut?.();
       await storage.clear().catch(() => undefined);
     }
 
@@ -120,6 +123,14 @@ export function createAuthStore(deps: {
   });
 }
 
+const signedOutListeners = new Set<() => void>();
+
+/** Registers cleanup to run whenever the session ends (sign-out, revoked session). */
+export function onSignedOut(listener: () => void): () => void {
+  signedOutListeners.add(listener);
+  return () => signedOutListeners.delete(listener);
+}
+
 /** App-wide instances. The client reads the store lazily (at request time) to break the cycle. */
 export const apiClient: ApiClient = createApiClient({
   baseUrl: API_URL,
@@ -131,7 +142,11 @@ export const apiClient: ApiClient = createApiClient({
 });
 
 export const authApi = createAuthApi(apiClient);
-const store = createAuthStore({ api: authApi, storage: secureTokenStorage });
+const store = createAuthStore({
+  api: authApi,
+  storage: secureTokenStorage,
+  onSignedOut: () => signedOutListeners.forEach((l) => l()),
+});
 export const authStore = store;
 
 export function useAuth<T>(selector: (s: AuthState) => T): T {
