@@ -5,8 +5,10 @@ import type { Config } from './config';
 import type { Db } from './db/client';
 import { AttemptLimiter } from './auth/attempt-limiter';
 import { createAccessTokens } from './auth/tokens';
+import { createJamendoClient } from './catalog/jamendo';
 import { registerErrorHandlers } from './errors';
 import { authRoutes } from './routes/auth';
+import { catalogRoutes } from './routes/catalog';
 import { healthRoutes } from './routes/health';
 import { meRoutes } from './routes/me';
 
@@ -29,6 +31,8 @@ export const redactPaths = [
 export interface BuildOptions {
   /** Test hook: where pino writes (defaults to stdout). */
   logStream?: { write(msg: string): void };
+  /** Test hook: fetch used for Jamendo (defaults to global fetch). */
+  jamendoFetch?: typeof fetch;
 }
 
 export async function buildApp(
@@ -76,6 +80,17 @@ export async function buildApp(
         emailLimiter: new AttemptLimiter(config.AUTH_RATE_LIMIT_PER_EMAIL, 15 * 60_000),
       });
       void v1.register(meRoutes, { db, accessTokens });
+      void v1.register(catalogRoutes, {
+        db,
+        accessTokens,
+        jamendo: createJamendoClient({
+          clientId: config.JAMENDO_CLIENT_ID,
+          baseUrl: config.JAMENDO_BASE_URL,
+          timeoutMs: config.JAMENDO_TIMEOUT_MS,
+          ...(options.jamendoFetch ? { fetchImpl: options.jamendoFetch } : {}),
+        }),
+        userLimiter: new AttemptLimiter(config.CATALOG_RATE_LIMIT_PER_USER, 60_000),
+      });
       done();
     },
     { prefix: '/v1' },
