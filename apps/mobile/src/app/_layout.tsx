@@ -60,6 +60,7 @@ export default function RootLayout() {
           <Stack.Protected guard={signedIn}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="player" options={{ presentation: 'fullScreenModal', ...sheet }} />
+            <Stack.Screen name="queue" options={{ presentation: 'fullScreenModal', ...sheet }} />
           </Stack.Protected>
           <Stack.Protected guard={!signedIn}>
             <Stack.Screen name="(auth)" />

@@ -8,6 +8,8 @@ export type PlayerStatus = 'idle' | 'loading' | 'buffering' | 'playing' | 'pause
 
 /** "Anterior" restarts the current track when more than this has played. */
 export const RESTART_THRESHOLD_SECONDS = 3;
+/** A play counts for the history after this much listening (or half of a shorter track). */
+export const PLAY_REPORT_SECONDS = 30;
 
 export interface PlayerState {
   /** Play order (shuffled when shuffle is on). */
@@ -32,7 +34,14 @@ export interface PlayerState {
   toggleShuffle(): void;
   cycleRepeat(): void;
   retry(): Promise<void>;
+  /** Queue editing (T13). Indices are positions in `queue`. */
+  moveInQueue(from: number, to: number): void;
+  removeFromQueue(index: number): Promise<void>;
+  /** Removes everything after the current track ("Limpar"). */
+  clearUpcoming(): void;
+  addToQueue(track: Track): void;
   /** Engine callbacks. */
+  onProgress(positionSeconds: number): void;
   onEngineState(state: EngineState): void;
   onEngineError(message: string): void;
   onTrackEnded(): Promise<void>;
@@ -46,6 +55,8 @@ export interface PlayerDeps {
   streamUrl(path: string): string;
   /** A valid access token for the stream request, or null when signed out. */
   getAccessToken(): Promise<string | null>;
+  /** Records a play in the history; failures are ignored. */
+  reportPlay?(trackId: string): Promise<void>;
   random?: () => number;
 }
 
@@ -67,10 +78,19 @@ export function createPlayerStore(deps: PlayerDeps): StoreApi<PlayerState> {
   const random = deps.random ?? Math.random;
 
   return createStore<PlayerState>()((set, get) => {
+    /** Track id already reported for the current load (one report per play). */
+    let reported: string | null = null;
+
+    /** Applies a new play order; without shuffle the user's order is the play order. */
+    function setQueue(queue: Track[], index: number, original?: Track[]) {
+      set({ queue, index, original: original ?? (get().shuffle ? get().original : queue) });
+    }
+
     /** Loads queue[index] into the engine with a fresh token, then plays. */
     async function loadAndPlay(index: number) {
       const track = get().queue[index];
       if (!track) return;
+      reported = null;
       set({ index, status: 'loading', error: null });
       try {
         await deps.engine.setup();
@@ -201,6 +221,71 @@ export function createPlayerStore(deps: PlayerDeps): StoreApi<PlayerState> {
       },
 
       retry: () => loadAndPlay(get().index),
+
+      moveInQueue(from, to) {
+        const { queue, index } = get();
+        if (from === to || from < 0 || to < 0 || from >= queue.length || to >= queue.length) return;
+        const next = [...queue];
+        const [moved] = next.splice(from, 1);
+        if (!moved) return;
+        next.splice(to, 0, moved);
+        const current = queue[index];
+        setQueue(
+          next,
+          Math.max(
+            0,
+            next.findIndex((t) => t === current),
+          ),
+        );
+      },
+
+      async removeFromQueue(at) {
+        const { queue, index, original } = get();
+        const removed = queue[at];
+        if (!removed) return;
+        const next = queue.filter((_, i) => i !== at);
+        const nextOriginal = original.filter((t) => t !== removed);
+        if (next.length === 0) return get().reset();
+        if (at === index) {
+          // Removing the playing track moves on to what was next.
+          setQueue(next, Math.min(index, next.length - 1), nextOriginal);
+          return loadAndPlay(get().index);
+        }
+        setQueue(next, at < index ? index - 1 : index, nextOriginal);
+      },
+
+      clearUpcoming() {
+        const { queue, index, original } = get();
+        const current = queue[index];
+        if (!current) return;
+        const kept = queue.slice(0, index + 1);
+        setQueue(
+          kept,
+          index,
+          original.filter((t) => kept.includes(t)),
+        );
+      },
+
+      addToQueue(track) {
+        const { queue, index, original } = get();
+        if (queue.length === 0) {
+          void get().playList([track], 0);
+          return;
+        }
+        setQueue([...queue, track], index, [...original, track]);
+      },
+
+      onProgress(position) {
+        const track = get().current();
+        if (!track || reported === track.id || !deps.reportPlay) return;
+        const threshold = Math.min(
+          PLAY_REPORT_SECONDS,
+          track.durationSeconds > 0 ? track.durationSeconds / 2 : PLAY_REPORT_SECONDS,
+        );
+        if (position < threshold) return;
+        reported = track.id;
+        void deps.reportPlay(track.id).catch(() => undefined);
+      },
 
       onEngineState(state) {
         if (state === 'ended' || state === 'idle') return;
